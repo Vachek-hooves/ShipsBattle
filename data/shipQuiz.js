@@ -58,7 +58,8 @@ export const shipQuizData = [
       name: "Horatio Nelson",
       description: "Horatio Nelson is perhaps the most iconic admiral in British history, celebrated for his remarkable leadership and naval victories. Born in 1758, Nelson's most famous triumph came during the Battle of Trafalgar in 1805, where his strategic genius decisively defeated the combined French and Spanish fleets. Despite losing his life in the battle, Nelson's tactics ensured Britain's naval supremacy for over a century.",
       famousQuote: "England expects that every man will do his duty."
-    }
+    },
+    isActive:true
   },
   {
     id: 2,
@@ -119,7 +120,8 @@ export const shipQuizData = [
       name: "Francis Drake",
       description: "Francis Drake, born in 1540, was not only a skilled admiral but also a privateer, explorer, and one of England's greatest seafarers. He was the second person to successfully circumnavigate the globe, a feat he accomplished between 1577 and 1580. Drake is also known for his role in defending England from the Spanish Armada in 1588, using his bold tactics to outmaneuver a much larger Spanish fleet. Knighted by Queen Elizabeth I, Drake became a symbol of English defiance and exploration during the Elizabethan Age.",
       famousQuote: "It is not that life ashore is distasteful to me. But life at sea is better."
-    }
+    },
+    isActive:false
   },
   {
     id: 3,
@@ -180,7 +182,8 @@ export const shipQuizData = [
       name: "Edward Vernon",
       description: "Admiral Edward Vernon, born in 1684, played a significant role in British naval history, particularly in the Caribbean. He is best known for capturing the Spanish stronghold of Porto Bello in 1739, a victory that earned him widespread acclaim. Vernon was also a reformer, credited with introducing the practice of diluting sailors' rum rations with water, a mixture later known as \"grog\". His influence extended beyond battles, helping to shape the discipline and welfare of the Royal Navy.",
       famousQuote: "The fortune of war is always doubtful."
-    }
+    },
+    isActive:false
   },
   {
     id: 4,
@@ -241,7 +244,8 @@ export const shipQuizData = [
       name: "John Jellicoe",
       description: "Admiral John Jellicoe, born in 1859, was a key figure in Britain's naval efforts during World War I. As the commander of the Grand Fleet, Jellicoe led British forces during the pivotal Battle of Jutland in 1916. While the battle's outcome was indecisive, Jellicoe's leadership prevented a German breakthrough, maintaining Britain's naval dominance. His cautious yet effective strategy, along with his deep understanding of naval warfare, made him one of the most respected military figures of his time.",
       famousQuote: "I can lose the war in an afternoon, but I cannot win it."
-    }
+    },
+    isActive:false
   },
   {
     id: 5,
@@ -302,7 +306,8 @@ export const shipQuizData = [
       name: "David Beatty",
       description: "David Beatty, born in 1871, was one of the most prominent British naval commanders during World War I, particularly known for his boldness and charisma. He commanded the battlecruiser fleet at the Battle of Jutland, where his aggressive tactics were both praised and criticized. Beatty later became Admiral of the Fleet and oversaw the signing of the armistice in 1918, securing the Royal Navy's position as the world's dominant maritime force. His flair and determination made him a celebrated figure in British naval history.",
       famousQuote: "There seems to be something wrong with our bloody ships today."
-    }
+    },
+    isActive:false
   },
   {
     id: 6,
@@ -363,7 +368,8 @@ export const shipQuizData = [
       name: "George Anson",
       description: "Admiral George Anson, born in 1697, made his mark through exploration and his leadership in the Royal Navy. Anson's circumnavigation of the globe between 1740 and 1744 brought him fame and fortune, as he captured vast amounts of Spanish treasure. His return to England was hailed as a great victory, and Anson was promoted to higher positions within the navy. Anson's voyages also contributed to naval reforms and improvements in navigation, solidifying his legacy as both an explorer and a naval strategist.",
       famousQuote: "I have always been of the opinion that we should never despair."
-    }
+    },
+    isActive:false
   },
   {
     id: 7,
@@ -424,7 +430,8 @@ export const shipQuizData = [
       name: "Charles Napier",
       description: "Admiral Charles Napier, born in 1786, gained fame for his daring exploits during the Napoleonic Wars. His command of naval forces in the Mediterranean, particularly his role in the Battle of Cape St. Vincent, highlighted his boldness and tactical skill. Napier was also involved in Portugal's Liberal Wars and played a role in modernizing the Portuguese Navy. Known for his unorthodox methods and tenacity, Napier's career spanned many conflicts, making him one of Britain's most versatile and effective naval commanders.",
       famousQuote: "Victory is not always to the strong but to the vigilant, the active, and the brave."
-    }
+    },
+    isActive:false
   },
   {
     id: 8,
@@ -485,7 +492,8 @@ export const shipQuizData = [
       name: "James Gambier",
       description: "Born in 1756, Admiral James Gambier is remembered for his service during the Napoleonic Wars. He played a crucial role in the British bombardment of Copenhagen in 1807, which prevented the Danish fleet from falling into French hands. Although often criticized for being overly cautious, Gambier's leadership was instrumental in several important victories. His commitment to the Royal Navy and his ability to command respect from his peers ensured his place in naval history.",
       famousQuote: "Success cannot be obtained by chance, it must be achieved through valiant efforts."
-    }
+    },
+    isActive:false
   },
   {
     id: 9,
@@ -546,7 +554,8 @@ export const shipQuizData = [
       name: "Richard Howe",
       description: "Admiral Richard Howe, born in 1726, made a significant impact during the American War of Independence. As the commander of British naval forces, Howe's leadership during the Battle of Ushant in 1778 and his diplomatic efforts with the American colonies were key aspects of his career. Known as \"Black Dick,\" Howe was admired for his calm demeanor and strategic brilliance. His victory in the Glorious First of June battle in 1794 against the French Revolutionary fleet marked a high point in his career, securing his legacy as one of Britain's great naval heroes.",
       famousQuote: "A sailor's life is the most uncertain, but also the most rewarding."
-    }
+    },
+    isActive:false
   },
   {
     id: 10,
@@ -607,6 +616,7 @@ export const shipQuizData = [
       name: "Samuel Hood",
       description: "Born in 1724, Admiral Samuel Hood was a highly respected naval officer who played a significant role in several key battles during the American Revolutionary War. Hood's leadership during the Battle of the Chesapeake and the Battle of Saint Kitts showcased his tactical acumen. He later served as a mentor to younger officers, including Horatio Nelson. Hood's long and distinguished career left a lasting impact on the Royal Navy, and his contributions during the wars with France and the American colonies earned him a place among Britain's most esteemed admirals.",
       famousQuote: "He who commands the sea commands everything."
-    }
+    },
+    isActive:false
   }
 ];
