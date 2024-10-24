@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder,Image } from 'react-native';
+import { battleShips } from '../../data/battleShips';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SHIP_SIZE = 50;
@@ -138,15 +139,19 @@ const StackShipsBattle = () => {
       {enemyShips.map((ship, index) => (
         ship.isAlive && (
           <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]} />
+       
         )
-      ))}
+    ))}
       {bullets.map((bullet, index) => (
-        <Animated.View key={index} style={[styles.bullet, bullet.getLayout()]} />
-      ))}
+          <Animated.View key={index} style={[styles.bullet, bullet.getLayout()]} />
+        ))}
       <Animated.View
         {...panResponder.panHandlers}
         style={[styles.playerShip, playerShip.getLayout()]}
-      />
+      >
+        <Image source={battleShips[0].image} style={styles.playerShipImage} />
+
+      </Animated.View>
       <TouchableOpacity style={styles.shootButton} onPress={shoot}>
         <Text style={styles.shootButtonText}>Shoot</Text>
       </TouchableOpacity>
@@ -158,15 +163,23 @@ export default StackShipsBattle;
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 10,
+    paddingTop: 60,
     flex: 1,
     backgroundColor: '#87CEEB',
+    paddingHorizontal: 20,
   },
   playerShip: {
     width: SHIP_SIZE,
     height: SHIP_SIZE,
     backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
     position: 'absolute',
+    bottom: 60,
+  },
+  playerShipImage:{
+    width: SHIP_SIZE+50,
+    height: SHIP_SIZE+50,
   },
   enemyShip: {
     width: SHIP_SIZE,
@@ -177,8 +190,10 @@ const styles = StyleSheet.create({
   bullet: {
     width: BULLET_SIZE,
     height: BULLET_SIZE,
-    backgroundColor: 'yellow',
+    backgroundColor: 'black',
     position: 'absolute',
+    borderRadius: BULLET_SIZE / 2,
+
   },
   shootButton: {
     position: 'absolute',
@@ -193,11 +208,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   scoreText: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
+    // position: 'absolute',
+    // top: 20,
+    // left: 20,
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
+    zIndex: 1000,
   },
   gameOverText: {
     fontSize: 32,
