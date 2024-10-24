@@ -14,7 +14,9 @@ const StackShipsBattle = () => {
   const [enemyShips, setEnemyShips] = useState(
     Array(INITIAL_ENEMY_COUNT).fill().map(() => ({
       position: new Animated.ValueXY({ x: Math.random() * (SCREEN_WIDTH - SHIP_SIZE), y: Math.random() * (SCREEN_HEIGHT / 3) }),
-      isAlive: true
+      isAlive: true,
+      speed: Math.random() * 0.5 + 0.5, // Random speed between 0.5 and 1
+      direction: Math.random() * 2 * Math.PI // Random direction in radians
     }))
   );
   const [bullets, setBullets] = useState([]);
@@ -27,29 +29,40 @@ const StackShipsBattle = () => {
   });
 
   useEffect(() => {
-    moveEnemyShips();
-  }, []);
+    const moveInterval = setInterval(() => {
+      setEnemyShips(prevShips => 
+        prevShips.map(ship => {
+          if (!ship.isAlive) return ship;
 
-  const moveEnemyShips = () => {
-    enemyShips.forEach((ship, index) => {
-      if (ship.isAlive) {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(ship.position.x, {
-              toValue: Math.random() * (SCREEN_WIDTH - SHIP_SIZE),
-              duration: 2000 + index * 500,
-              useNativeDriver: false,
-            }),
-            Animated.timing(ship.position.y, {
-              toValue: Math.random() * (SCREEN_HEIGHT / 3),
-              duration: 2000 + index * 500,
-              useNativeDriver: false,
-            }),
-          ])
-        ).start();
-      }
-    });
-  };
+          const newX = ship.position.x._value + Math.cos(ship.direction) * ship.speed;
+          const newY = ship.position.y._value + Math.sin(ship.direction) * ship.speed;
+
+          // Bounce off the edges
+          let newDirection = ship.direction;
+          if (newX <= 0 || newX >= SCREEN_WIDTH - SHIP_SIZE) {
+            newDirection = Math.PI - newDirection;
+          }
+          if (newY <= 0 || newY >= SCREEN_HEIGHT / 2) {
+            newDirection = -newDirection;
+          }
+
+          ship.position.setValue({ 
+            x: Math.max(0, Math.min(newX, SCREEN_WIDTH - SHIP_SIZE)),
+            y: Math.max(0, Math.min(newY, SCREEN_HEIGHT / 2))
+          });
+
+          return {
+            ...ship,
+            direction: newDirection,
+            // Occasionally change direction
+            ...(Math.random() < 0.02 && { direction: Math.random() * 2 * Math.PI })
+          };
+        })
+      );
+    }, 16); // Update every frame (60 FPS)
+
+    return () => clearInterval(moveInterval);
+  }, []);
 
   const shoot = () => {
     const newBullet = new Animated.ValueXY({ x: playerShip.x._value + SHIP_SIZE / 2 - BULLET_SIZE / 2, y: playerShip.y._value });
@@ -57,7 +70,7 @@ const StackShipsBattle = () => {
 
     Animated.timing(newBullet.y, {
       toValue: -BULLET_SIZE,
-      duration: 3000,
+      duration: 1000,
       useNativeDriver: false,
     }).start(() => {
       setBullets(prevBullets => prevBullets.filter(bullet => bullet !== newBullet));
