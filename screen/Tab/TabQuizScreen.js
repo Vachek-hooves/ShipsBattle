@@ -1,13 +1,23 @@
 import React from 'react';
 import { StyleSheet, View, ImageBackground, TouchableOpacity, Text } from 'react-native';
+import { useAppContextProvider } from '../../store/context';
 
-const LevelMarker = ({ number, top, left }) => (
-  <View style={[styles.marker, { top, left }]}>
-    <Text style={styles.markerText}>{number}</Text>
+const LevelMarker = ({ number, isActive, top, left }) => (
+  <View style={[
+    styles.marker, 
+    { top, left },
+    isActive ? styles.activeMarker : styles.inactiveMarker
+  ]}>
+    <Text style={[
+      styles.markerText,
+      isActive ? styles.activeMarkerText : styles.inactiveMarkerText
+    ]}>{number}</Text>
   </View>
 );
 
-const TabQuizScreen = () => {
+const TabQuizScreen = ({ navigation }) => {
+  const { quizData } = useAppContextProvider();
+
   const levels = [
     { number: 1, top: '15%', left: '20%' },
     { number: 2, top: '15%', left: '80%' },
@@ -21,20 +31,36 @@ const TabQuizScreen = () => {
     { number: 10, top: '80%', left: '70%' },
   ];
 
+  const handleLevelPress = (levelNumber) => {
+    console.log(`Level ${levelNumber} selected`);
+    navigation.navigate('StackQuizScreen', { levelNumber });
+  };
+
   return (
     <ImageBackground 
       source={require('../../assets/image/bg/map.png')} 
       style={styles.image}
     >
-      {levels.map((level) => (
-        <TouchableOpacity
-          key={level.number}
-          style={[styles.levelArea, { top: level.top, left: level.left }]}
-          onPress={() => console.log(`Level ${level.number} selected`)}
-        >
-          <LevelMarker number={level.number} top={0} left={0} />
-        </TouchableOpacity>
-      ))}
+      {levels.map((level) => {
+        const quizLevel = quizData.find(quiz => quiz.id === level.number);
+        const isActive = quizLevel ? quizLevel.isActive : false;
+
+        return (
+          <TouchableOpacity
+            key={level.number}
+            style={[styles.levelArea, { top: level.top, left: level.left }]}
+            onPress={() => handleLevelPress(level.number)}
+            disabled={!isActive}
+          >
+            <LevelMarker 
+              number={level.number} 
+              isActive={isActive}
+              top={0} 
+              left={0} 
+            />
+          </TouchableOpacity>
+        );
+      })}
     </ImageBackground>
   );
 };
@@ -56,13 +82,23 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  activeMarker: {
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+  inactiveMarker: {
+    backgroundColor: 'rgba(128, 128, 128, 0.7)',
   },
   markerText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  activeMarkerText: {
     color: '#000',
+  },
+  inactiveMarkerText: {
+    color: '#555',
   },
 });
