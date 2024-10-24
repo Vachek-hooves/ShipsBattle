@@ -3,9 +3,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppContextProvider } from './store/context';
 import WelcomeScreen from './screen/Stack/StackWelcomeScreen';
-import { TabHarborScreen, TabQuizScreen } from './screen/Tab';
+import { TabHarborScreen, TabQuizScreen, TabShipsBattle } from './screen/Tab';
 import { StackQuizScreen } from './screen/Stack';
-
+import { StackShipsBattle } from './screen/Stack';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -20,6 +20,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen name="TabQuizScreen" component={TabQuizScreen} />
       <Tab.Screen name="TabHarborScreen" component={TabHarborScreen} />
+      <Tab.Screen name="TabShipsBattle" component={TabShipsBattle} />
     </Tab.Navigator>
   );
 };
@@ -38,6 +39,7 @@ function App() {
           <Stack.Screen name="TabNavigator" component={TabNavigator} />
           <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
           <Stack.Screen name="StackQuizScreen" component={StackQuizScreen} />
+          <Stack.Screen name="StackShipsBattle" component={StackShipsBattle} />
         </Stack.Navigator>
       </NavigationContainer>
     </AppContextProvider>

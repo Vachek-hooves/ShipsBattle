@@ -1,4 +1,5 @@
 import TabHarborScreen from "./TabHarborScreen";
 import TabQuizScreen from "./TabQuizScreen";
-    
-export {TabHarborScreen, TabQuizScreen};
+import TabShipsBattle from "./TabShipsBattle";
+
+export {TabHarborScreen, TabQuizScreen, TabShipsBattle};

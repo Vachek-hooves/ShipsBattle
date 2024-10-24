@@ -1,4 +1,5 @@
 import StackWelcomeScreen from "./StackWelcomeScreen";
 import StackQuizScreen from "./StackQuizScreen";
-    
-export {StackWelcomeScreen, StackQuizScreen};
+import StackShipsBattle from "./StackShipsBattle";
+
+export {StackWelcomeScreen, StackQuizScreen, StackShipsBattle};
