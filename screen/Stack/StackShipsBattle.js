@@ -43,13 +43,13 @@ const StackShipsBattle = () => {
           if (newX <= 0 || newX >= SCREEN_WIDTH - SHIP_SIZE) {
             newDirection = Math.PI - newDirection;
           }
-          if (newY <= 0 || newY >= SCREEN_HEIGHT / 2) {
+          if (newY <= 100 || newY >= SCREEN_HEIGHT / 2) {
             newDirection = -newDirection;
           }
 
           ship.position.setValue({ 
             x: Math.max(0, Math.min(newX, SCREEN_WIDTH - SHIP_SIZE)),
-            y: Math.max(0, Math.min(newY, SCREEN_HEIGHT / 2))
+            y: Math.max(100, Math.min(newY, SCREEN_HEIGHT / 2))
           });
 
           return {
