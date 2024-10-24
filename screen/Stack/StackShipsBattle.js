@@ -105,7 +105,7 @@ const StackShipsBattle = () => {
 
     Animated.timing(newBullet.y, {
       toValue: -BULLET_SIZE,
-      duration: 1000,
+      duration: 4000,
       useNativeDriver: false,
     }).start(() => {
       setBullets(prevBullets => prevBullets.filter(bullet => bullet !== newBullet));
