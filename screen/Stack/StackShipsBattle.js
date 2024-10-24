@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder,Image } from 'react-native';
 import { battleShips } from '../../data/battleShips';
+import shot from '../../assets/sound/uiSound/shot.mp3'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SHIP_SIZE = 50;
