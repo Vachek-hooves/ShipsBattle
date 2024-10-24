@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder,Image } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder, Image } from 'react-native';
+import Sound from 'react-native-sound';
 import { battleShips } from '../../data/battleShips';
-import shot from '../../assets/sound/uiSound/shot.mp3'
+
+// Enable playback in silence mode
+Sound.setCategory('Playback');
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SHIP_SIZE = 50;
@@ -22,6 +25,25 @@ const StackShipsBattle = () => {
     }))
   );
   const [bullets, setBullets] = useState([]);
+  const shotSoundEffect = useRef(null);
+
+  useEffect(() => {
+    // Load the sound file
+    Sound.setCategory('Playback');
+    shotSoundEffect.current = new Sound(require('../../assets/sound/uiSound/shot.mp3'), (error) => {
+      if (error) {
+        console.log('failed to load the sound', error);
+        return;
+      }
+      console.log('successfully loaded the sound');
+    });
+
+    return () => {
+      if (shotSoundEffect.current) {
+        shotSoundEffect.current.release();
+      }
+    };
+  }, []);
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -69,6 +91,17 @@ const StackShipsBattle = () => {
   const shoot = () => {
     const newBullet = new Animated.ValueXY({ x: playerShip.x._value + SHIP_SIZE / 2 - BULLET_SIZE / 2, y: playerShip.y._value });
     setBullets(prevBullets => [...prevBullets, newBullet]);
+
+    // Play the shot sound
+    if (shotSoundEffect.current) {
+      shotSoundEffect.current.play((success) => {
+        if (success) {
+          console.log('successfully finished playing');
+        } else {
+          console.log('playback failed due to audio decoding errors');
+        }
+      });
+    }
 
     Animated.timing(newBullet.y, {
       toValue: -BULLET_SIZE,
