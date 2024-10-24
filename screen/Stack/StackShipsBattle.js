@@ -138,7 +138,9 @@ const StackShipsBattle = () => {
       <Text style={styles.scoreText}>Score: {score}</Text>
       {enemyShips.map((ship, index) => (
         ship.isAlive && (
-          <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]} />
+          <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]} >
+            <Image source={battleShips[0].enemyShip} style={styles.enemyShipImage} />
+          </Animated.View>
        
         )
     ))}
@@ -149,7 +151,7 @@ const StackShipsBattle = () => {
         {...panResponder.panHandlers}
         style={[styles.playerShip, playerShip.getLayout()]}
       >
-        <Image source={battleShips[0].image} style={styles.playerShipImage} />
+        <Image source={battleShips[0].playerShip} style={styles.playerShipImage} />
 
       </Animated.View>
       <TouchableOpacity style={styles.shootButton} onPress={shoot}>
@@ -167,6 +169,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#87CEEB',
     paddingHorizontal: 20,
+  },
+  enemyShipImage:{
+    width: SHIP_SIZE+50,
+    height: SHIP_SIZE+50,
+    
   },
   playerShip: {
     width: SHIP_SIZE,
@@ -186,6 +193,8 @@ const styles = StyleSheet.create({
     height: SHIP_SIZE,
     backgroundColor: 'red',
     position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bullet: {
     width: BULLET_SIZE,
