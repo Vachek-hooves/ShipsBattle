@@ -26,21 +26,33 @@ const StackShipsBattle = () => {
   );
   const [bullets, setBullets] = useState([]);
   const shotSoundEffect = useRef(null);
+  const explosionSoundEffect = useRef(null);
 
   useEffect(() => {
-    // Load the sound file
+    // Load the sound files
     Sound.setCategory('Playback');
     shotSoundEffect.current = new Sound(require('../../assets/sound/uiSound/shot.mp3'), (error) => {
       if (error) {
-        console.log('failed to load the sound', error);
+        console.log('failed to load the shot sound', error);
         return;
       }
-      console.log('successfully loaded the sound');
+      console.log('successfully loaded the shot sound');
+    });
+
+    explosionSoundEffect.current = new Sound(require('../../assets/sound/uiSound/shipExplosion.mp3'), (error) => {
+      if (error) {
+        console.log('failed to load the explosion sound', error);
+        return;
+      }
+      console.log('successfully loaded the explosion sound');
     });
 
     return () => {
       if (shotSoundEffect.current) {
         shotSoundEffect.current.release();
+      }
+      if (explosionSoundEffect.current) {
+        explosionSoundEffect.current.release();
       }
     };
   }, []);
@@ -95,9 +107,7 @@ const StackShipsBattle = () => {
     // Play the shot sound
     if (shotSoundEffect.current) {
       shotSoundEffect.current.play((success) => {
-        if (success) {
-          console.log('successfully finished playing');
-        } else {
+        if (!success) {
           console.log('playback failed due to audio decoding errors');
         }
       });
@@ -105,7 +115,7 @@ const StackShipsBattle = () => {
 
     Animated.timing(newBullet.y, {
       toValue: -BULLET_SIZE,
-      duration: 4000,
+      duration: 1000,
       useNativeDriver: false,
     }).start(() => {
       setBullets(prevBullets => prevBullets.filter(bullet => bullet !== newBullet));
@@ -132,6 +142,15 @@ const StackShipsBattle = () => {
               ));
               bulletHit = true;
               bulletsToRemove.push(bullet);
+
+              // Play the explosion sound
+              if (explosionSoundEffect.current) {
+                explosionSoundEffect.current.play((success) => {
+                  if (!success) {
+                    console.log('explosion playback failed due to audio decoding errors');
+                  }
+                });
+              }
             }
           });
         });
