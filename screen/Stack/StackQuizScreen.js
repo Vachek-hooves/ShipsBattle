@@ -69,7 +69,7 @@ const StackQuizScreen = ({ route, navigation }) => {
 
 
     return (
-        <ImageBackground source={quizLevel.admiralInfo.image} style={styles.backgroundImage} blurRadius={20}>
+        <ImageBackground source={quizLevel.admiralInfo.image} style={styles.backgroundImage} blurRadius={50}>
             <ScrollView contentContainerStyle={styles.container}>
                 <Text style={styles.questionText}>{currentQuestion.question}</Text>
                 {currentQuestion.options.map((option, index) => (
@@ -100,14 +100,15 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(9, 9, 0, 0.7)',
+        backgroundColor: 'rgba(9, 9, 0, 0.2)',
     },
     questionText: {
-        fontSize: 22,
+        fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 30,
         textAlign: 'center',
         color: '#ffffff',
+       
     },
     optionButton: {
         padding: 15,
