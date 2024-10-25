@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
 import { useAppContextProvider } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
+import { shipQuizData } from '../../data/shipQuiz'; // Import the local data
 
 
 const StackQuizScreen = ({ route, navigation }) => {
     const { quizData, updateQuizData } = useAppContextProvider();
     const { levelNumber } = route.params;
     const quizLevel = quizData.find(quiz => quiz.id === levelNumber);
+    const localQuizLevel = shipQuizData.find(quiz => quiz.id === levelNumber); // Get local data
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [showResult, setShowResult] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        navigation.setOptions({ title: quizLevel.quizName });
-    }, []);
+        navigation.setOptions({ title: quizLevel?.quizName || 'Quiz' });
+        // Check if quizLevel is loaded
+        if (quizLevel) {
+            setIsLoading(false);
+        }
+    }, [quizLevel]);
 
     const handleAnswer = (selectedAnswer) => {
         const currentQuestion = quizLevel.questions[currentQuestionIndex];
@@ -43,6 +50,14 @@ const StackQuizScreen = ({ route, navigation }) => {
         navigation.goBack();
     };
 
+    if (isLoading) {
+        return (
+            <View style={styles.container}>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
+
     if (!quizLevel) {
         return (
             <View style={styles.container}>
@@ -53,7 +68,11 @@ const StackQuizScreen = ({ route, navigation }) => {
 
     if (showResult) {
         return (
-            <ImageBackground source={quizLevel.admiralInfo.image} style={styles.backgroundImage} blurRadius={20}>
+            <ImageBackground 
+                source={localQuizLevel.admiralInfo.image} // Use local data for image
+                style={styles.backgroundImage} 
+                blurRadius={20}
+            >
                 <View style={styles.container}>
                     <Text style={styles.resultText}>Quiz Completed!</Text>
                     <Text style={styles.scoreText}>Your Score: {score}/{quizLevel.questions.length}</Text>
@@ -65,11 +84,15 @@ const StackQuizScreen = ({ route, navigation }) => {
     }
 
     const currentQuestion = quizLevel.questions[currentQuestionIndex];
-    
+    console.log(quizLevel.admiralInfo.image)
 
 
     return (
-        <ImageBackground source={quizLevel.admiralInfo.image} style={styles.backgroundImage} blurRadius={50}>
+        <ImageBackground 
+            source={localQuizLevel.admiralInfo.image} // Use local data for image
+            style={styles.backgroundImage} 
+            blurRadius={50}
+        >
             <ScrollView contentContainerStyle={styles.container}>
                 <Text style={styles.questionText}>{currentQuestion.question}</Text>
                 {currentQuestion.options.map((option, index) => (
