@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder, Image } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder, Image,ImageBackground } from 'react-native';
 import Sound from 'react-native-sound';
 import { battleShips } from '../../data/battleShips';
 
@@ -188,28 +188,30 @@ const StackShipsBattle = () => {
 
   return (
     <View style={styles.container}>
+        <ImageBackground source={require('../../assets/image/bg/battleMap.png')} style={styles.backgroundImage}>
       <Text style={styles.scoreText}>Score: {score}</Text>
       {enemyShips.map((ship, index) => (
-        ship.isAlive && (
-          <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]} >
+          ship.isAlive && (
+              <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]} >
             <Image source={battleShips[0].enemyShip} style={styles.enemyShipImage} />
           </Animated.View>
        
-        )
-    ))}
+    )
+))}
       {bullets.map((bullet, index) => (
           <Animated.View key={index} style={[styles.bullet, bullet.getLayout()]} />
         ))}
       <Animated.View
         {...panResponder.panHandlers}
         style={[styles.playerShip, playerShip.getLayout()]}
-      >
+        >
         <Image source={battleShips[0].playerShip} style={styles.playerShipImage} />
 
       </Animated.View>
       <TouchableOpacity style={styles.shootButton} onPress={shoot}>
         <Text style={styles.shootButtonText}>Shoot</Text>
       </TouchableOpacity>
+          </ImageBackground>
     </View>
   );
 };
@@ -218,10 +220,17 @@ export default StackShipsBattle;
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 60,
+    // paddingTop: 60,
     flex: 1,
     backgroundColor: '#87CEEB',
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
+  },    
+  backgroundImage:{
+    flex: 1,
+    resizeMode: 'cover',
+    // justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 60,
   },
   enemyShipImage:{
     width: SHIP_SIZE+50,
