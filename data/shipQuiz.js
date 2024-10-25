@@ -1,5 +1,6 @@
 export const shipQuizData = [
-  {
+  { 
+    score:'0',
     id: 1,
     quizName: 'Famous British Islands',
     questions: [
@@ -69,7 +70,8 @@ export const shipQuizData = [
     },
     isActive: true,
   },
-  {
+  { 
+    score:'0',
     id: 2,
     quizName: 'Famous Admirals',
     questions: [
@@ -142,6 +144,7 @@ export const shipQuizData = [
     isActive: false,
   },
   {
+    score:'0',
     id: 3,
     quizName: 'Historical Events',
     questions: [
@@ -211,6 +214,7 @@ export const shipQuizData = [
     isActive: false,
   },
   {
+    score:'0',
     id: 4,
     quizName: 'Islands Geography',
     questions: [
@@ -281,6 +285,7 @@ export const shipQuizData = [
     isActive: false,
   },
   {
+    score:'0',
     id: 5,
     quizName: 'Notable Expeditions',
     questions: [
@@ -351,6 +356,7 @@ export const shipQuizData = [
     isActive: false,
   },
   {
+    score:'0',
     id: 6,
     quizName: 'Naval Terminology',
     questions: [
@@ -440,6 +446,7 @@ export const shipQuizData = [
     isActive: false,
   },
   {
+    score:'0',
     id: 7,
     quizName: 'British Naval History',
     questions: [
@@ -522,6 +529,7 @@ export const shipQuizData = [
     isActive: false,
   },
   {
+    score:'0',
     id: 8,
     quizName: 'British Naval Warfare',
     questions: [
@@ -612,6 +620,7 @@ export const shipQuizData = [
     isActive: false,
   },
   {
+    score:'0',
     id: 9,
     quizName: 'British Naval Culture',
     questions: [
@@ -693,6 +702,7 @@ export const shipQuizData = [
     isActive: false,
   },
   {
+    score:'0',
     id: 10,
     quizName: 'Naval Technology',
     questions: [
