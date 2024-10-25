@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert, ImageBackground } from 'react-native';
 import { useAppContextProvider } from '../../store/context';
+
 
 const StackQuizScreen = ({ route, navigation }) => {
     const { quizData, updateQuizData } = useAppContextProvider();
@@ -65,15 +66,21 @@ const StackQuizScreen = ({ route, navigation }) => {
     }
 
     const currentQuestion = quizLevel.questions[currentQuestionIndex];
+    
+
 
     return (
+        <ImageBackground source={quizLevel.admiralInfo.image} style={styles.backgroundImage} 
+        blurRadius={20}
+        >
+
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.questionText}>{currentQuestion.question}</Text>
             {currentQuestion.options.map((option, index) => (
                 <TouchableOpacity 
-                    key={index} 
-                    style={styles.optionButton}
-                    onPress={() => handleAnswer(option)}
+                key={index} 
+                style={styles.optionButton}
+                onPress={() => handleAnswer(option)}
                 >
                     <Text style={styles.optionText}>{option}</Text>
                 </TouchableOpacity>
@@ -82,17 +89,26 @@ const StackQuizScreen = ({ route, navigation }) => {
                 Question {currentQuestionIndex + 1} of {quizLevel.questions.length}
             </Text>
         </ScrollView>
+            </ImageBackground>
     );
 };
 
 export default StackQuizScreen;
 
 const styles = StyleSheet.create({
+    backgroundImage:{
+        flex: 1,
+        resizeMode: 'cover',
+        justifyContent: 'center',
+        // alignItems: 'center',
+    },
     container: {
         flex: 1,
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'rgba(9, 9,0, 0.7)', // semi-transparent white
+    //  padding: 20,
     },
     questionText: {
         fontSize: 20,
