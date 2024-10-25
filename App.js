@@ -3,7 +3,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppContextProvider } from './store/context';
 import WelcomeScreen from './screen/Stack/StackWelcomeScreen';
-import { TabHarborScreen, TabQuizScreen, TabShipsBattle, TabStatistickScreen } from './screen/Tab';
+import {
+  TabHarborScreen,
+  TabQuizScreen,
+  TabShipsBattle,
+  TabStatistickScreen,
+} from './screen/Tab';
 import { StackQuizScreen } from './screen/Stack';
 import { StackShipsBattle } from './screen/Stack';
 const Stack = createNativeStackNavigator();
