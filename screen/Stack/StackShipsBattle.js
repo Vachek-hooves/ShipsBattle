@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, PanResponder, Image,ImageBackground } from 'react-native';
+import Sound from 'react-native-sound';
+import { battleShips } from '../../data/battleShips';
+
+// Enable playback in silence mode
+Sound.setCategory('Playback');
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SHIP_SIZE = 50;
@@ -14,10 +19,43 @@ const StackShipsBattle = () => {
   const [enemyShips, setEnemyShips] = useState(
     Array(INITIAL_ENEMY_COUNT).fill().map(() => ({
       position: new Animated.ValueXY({ x: Math.random() * (SCREEN_WIDTH - SHIP_SIZE), y: Math.random() * (SCREEN_HEIGHT / 3) }),
-      isAlive: true
+      isAlive: true,
+      speed: Math.random() * 0.5 + 0.5, // Random speed between 0.5 and 1
+      direction: Math.random() * 2 * Math.PI // Random direction in radians
     }))
   );
   const [bullets, setBullets] = useState([]);
+  const shotSoundEffect = useRef(null);
+  const explosionSoundEffect = useRef(null);
+
+  useEffect(() => {
+    // Load the sound files
+    Sound.setCategory('Playback');
+    shotSoundEffect.current = new Sound(require('../../assets/sound/uiSound/shot.mp3'), (error) => {
+      if (error) {
+        console.log('failed to load the shot sound', error);
+        return;
+      }
+      console.log('successfully loaded the shot sound');
+    });
+
+    explosionSoundEffect.current = new Sound(require('../../assets/sound/uiSound/shipExplosion.mp3'), (error) => {
+      if (error) {
+        console.log('failed to load the explosion sound', error);
+        return;
+      }
+      console.log('successfully loaded the explosion sound');
+    });
+
+    return () => {
+      if (shotSoundEffect.current) {
+        shotSoundEffect.current.release();
+      }
+      if (explosionSoundEffect.current) {
+        explosionSoundEffect.current.release();
+      }
+    };
+  }, []);
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -27,37 +65,57 @@ const StackShipsBattle = () => {
   });
 
   useEffect(() => {
-    moveEnemyShips();
-  }, []);
+    const moveInterval = setInterval(() => {
+      setEnemyShips(prevShips => 
+        prevShips.map(ship => {
+          if (!ship.isAlive) return ship;
 
-  const moveEnemyShips = () => {
-    enemyShips.forEach((ship, index) => {
-      if (ship.isAlive) {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(ship.position.x, {
-              toValue: Math.random() * (SCREEN_WIDTH - SHIP_SIZE),
-              duration: 2000 + index * 500,
-              useNativeDriver: false,
-            }),
-            Animated.timing(ship.position.y, {
-              toValue: Math.random() * (SCREEN_HEIGHT / 3),
-              duration: 2000 + index * 500,
-              useNativeDriver: false,
-            }),
-          ])
-        ).start();
-      }
-    });
-  };
+          const newX = ship.position.x._value + Math.cos(ship.direction) * ship.speed;
+          const newY = ship.position.y._value + Math.sin(ship.direction) * ship.speed;
+
+          // Bounce off the edges
+          let newDirection = ship.direction;
+          if (newX <= 0 || newX >= SCREEN_WIDTH - SHIP_SIZE) {
+            newDirection = Math.PI - newDirection;
+          }
+          if (newY <= 100 || newY >= SCREEN_HEIGHT / 2) {
+            newDirection = -newDirection;
+          }
+
+          ship.position.setValue({ 
+            x: Math.max(0, Math.min(newX, SCREEN_WIDTH - SHIP_SIZE)),
+            y: Math.max(100, Math.min(newY, SCREEN_HEIGHT / 2))
+          });
+
+          return {
+            ...ship,
+            direction: newDirection,
+            // Occasionally change direction
+            ...(Math.random() < 0.02 && { direction: Math.random() * 2 * Math.PI })
+          };
+        })
+      );
+    }, 16); // Update every frame (60 FPS)
+
+    return () => clearInterval(moveInterval);
+  }, []);
 
   const shoot = () => {
     const newBullet = new Animated.ValueXY({ x: playerShip.x._value + SHIP_SIZE / 2 - BULLET_SIZE / 2, y: playerShip.y._value });
     setBullets(prevBullets => [...prevBullets, newBullet]);
 
+    // Play the shot sound
+    if (shotSoundEffect.current) {
+      shotSoundEffect.current.play((success) => {
+        if (!success) {
+          console.log('playback failed due to audio decoding errors');
+        }
+      });
+    }
+
     Animated.timing(newBullet.y, {
       toValue: -BULLET_SIZE,
-      duration: 3000,
+      duration: 1000,
       useNativeDriver: false,
     }).start(() => {
       setBullets(prevBullets => prevBullets.filter(bullet => bullet !== newBullet));
@@ -84,6 +142,15 @@ const StackShipsBattle = () => {
               ));
               bulletHit = true;
               bulletsToRemove.push(bullet);
+
+              // Play the explosion sound
+              if (explosionSoundEffect.current) {
+                explosionSoundEffect.current.play((success) => {
+                  if (!success) {
+                    console.log('explosion playback failed due to audio decoding errors');
+                  }
+                });
+              }
             }
           });
         });
@@ -121,22 +188,30 @@ const StackShipsBattle = () => {
 
   return (
     <View style={styles.container}>
+        <ImageBackground source={require('../../assets/image/bg/battleMap.png')} style={styles.backgroundImage}>
       <Text style={styles.scoreText}>Score: {score}</Text>
       {enemyShips.map((ship, index) => (
-        ship.isAlive && (
-          <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]} />
-        )
-      ))}
+          ship.isAlive && (
+              <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]} >
+            <Image source={battleShips[0].enemyShip} style={styles.enemyShipImage} />
+          </Animated.View>
+       
+    )
+))}
       {bullets.map((bullet, index) => (
-        <Animated.View key={index} style={[styles.bullet, bullet.getLayout()]} />
-      ))}
+          <Animated.View key={index} style={[styles.bullet, bullet.getLayout()]} />
+        ))}
       <Animated.View
         {...panResponder.panHandlers}
         style={[styles.playerShip, playerShip.getLayout()]}
-      />
+        >
+        <Image source={battleShips[0].playerShip} style={styles.playerShipImage} />
+
+      </Animated.View>
       <TouchableOpacity style={styles.shootButton} onPress={shoot}>
         <Text style={styles.shootButtonText}>Shoot</Text>
       </TouchableOpacity>
+          </ImageBackground>
     </View>
   );
 };
@@ -145,26 +220,51 @@ export default StackShipsBattle;
 
 const styles = StyleSheet.create({
   container: {
+    // paddingTop: 60,
     flex: 1,
     backgroundColor: '#87CEEB',
+    // paddingHorizontal: 20,
+  },    
+  backgroundImage:{
+    flex: 1,
+    resizeMode: 'cover',
+    // justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 60,
+  },
+  enemyShipImage:{
+    width: SHIP_SIZE+50,
+    height: SHIP_SIZE+50,
+    
   },
   playerShip: {
     width: SHIP_SIZE,
     height: SHIP_SIZE,
     backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
     position: 'absolute',
+    bottom: 60,
+  },
+  playerShipImage:{
+    width: SHIP_SIZE+50,
+    height: SHIP_SIZE+50,
   },
   enemyShip: {
     width: SHIP_SIZE,
     height: SHIP_SIZE,
     backgroundColor: 'red',
     position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bullet: {
     width: BULLET_SIZE,
     height: BULLET_SIZE,
-    backgroundColor: 'yellow',
+    backgroundColor: 'black',
     position: 'absolute',
+    borderRadius: BULLET_SIZE / 2,
+
   },
   shootButton: {
     position: 'absolute',
@@ -179,11 +279,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   scoreText: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
+    // position: 'absolute',
+    // top: 20,
+    // left: 20,
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
+    zIndex: 1000,
   },
   gameOverText: {
     fontSize: 32,
