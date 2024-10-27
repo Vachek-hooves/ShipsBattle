@@ -2,6 +2,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppContextProvider } from './store/context';
+import { View, StyleSheet, Platform, Image } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+
 import WelcomeScreen from './screen/Stack/StackWelcomeScreen';
 import {
   TabHarborScreen,
@@ -9,24 +12,75 @@ import {
   TabShipsBattle,
   TabStatistickScreen,
 } from './screen/Tab';
-import { StackQuizScreen } from './screen/Stack';
-import { StackShipsBattle } from './screen/Stack';
+import { StackQuizScreen, StackShipsBattle } from './screen/Stack';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false,
         animation: 'fade',
         animationDuration: 1000,
-      }}
+        tabBarStyle: styles.tabBar,
+        tabBarBackground: () => (
+          <LinearGradient
+            colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.95)']}
+            style={styles.tabBarGradient}
+          />
+        ),
+        tabBarIcon: ({ focused }) => {
+          let iconSource;
+
+          if (route.name === 'TabQuizScreen') {
+            iconSource = require('./assets/icons/book.png');
+          } else if (route.name === 'TabHarborScreen') {
+            iconSource = require('./assets/icons/boat.png');
+          } else if (route.name === 'TabShipsBattle') {
+            iconSource = require('./assets/icons/game-controller.png');
+          } else if (route.name === 'TabStatistickScreen') {
+            iconSource = require('./assets/icons/stats-chart.png');
+          }
+
+          return (
+            <Image
+              source={iconSource}
+              style={[
+                styles.tabIcon,
+                { tintColor: focused ? '#4ECDC4' : '#95A5A6' }
+              ]}
+              resizeMode="contain"
+            />
+          );
+        },
+        tabBarActiveTintColor: '#4ECDC4',
+        tabBarInactiveTintColor: '#95A5A6',
+        tabBarLabelStyle: styles.tabBarLabel,
+        tabBarItemStyle: styles.tabBarItem,
+      })}
     >
-      <Tab.Screen name="TabQuizScreen" component={TabQuizScreen} />
-      <Tab.Screen name="TabHarborScreen" component={TabHarborScreen} />
-      <Tab.Screen name="TabShipsBattle" component={TabShipsBattle} />
-      <Tab.Screen name="TabStatistickScreen" component={TabStatistickScreen} />
+      <Tab.Screen 
+        name="TabQuizScreen" 
+        component={TabQuizScreen}
+        options={{ tabBarLabel: 'Quiz' }}
+      />
+      <Tab.Screen 
+        name="TabHarborScreen" 
+        component={TabHarborScreen}
+        options={{ tabBarLabel: 'Harbor' }}
+      />
+      <Tab.Screen 
+        name="TabShipsBattle" 
+        component={TabShipsBattle}
+        options={{ tabBarLabel: 'Battle' }}
+      />
+      <Tab.Screen 
+        name="TabStatistickScreen" 
+        component={TabStatistickScreen}
+        options={{ tabBarLabel: 'Stats' }}
+      />
     </Tab.Navigator>
   );
 };
@@ -51,5 +105,47 @@ function App() {
     </AppContextProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 24 : 16,
+    left: 20,
+    right: 20,
+    height: 65,
+    borderRadius: 15,
+    backgroundColor: 'transparent',
+    elevation: 0,
+    borderTopWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  tabBarGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 15,
+  },
+  tabBarLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    paddingBottom: 5,
+  },
+  tabBarItem: {
+    paddingTop: 8,
+  },
+  tabIcon: {
+    width: 24,
+    height: 24,
+    marginTop: 2,
+  },
+});
 
 export default App;
