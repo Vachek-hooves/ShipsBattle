@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ImageBackground, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, ImageBackground, TouchableOpacity, Text, Alert } from 'react-native';
 import { useAppContextProvider } from '../../store/context';
 
 const LevelMarker = ({ number, isActive, top, left }) => (
@@ -15,8 +15,14 @@ const LevelMarker = ({ number, isActive, top, left }) => (
   </View>
 );
 
+const TotalScoreDisplay = ({ score }) => (
+  <View style={styles.scoreContainer}>
+    <Text style={styles.scoreText}>Total Score: {score}</Text>
+  </View>
+);
+
 const TabQuizScreen = ({ navigation }) => {
-  const { quizData } = useAppContextProvider();
+  const { quizData, totalScore, unlockLevelWithScore } = useAppContextProvider();
 
   const levels = [
     { number: 1, top: '15%', left: '20%' },
@@ -32,8 +38,35 @@ const TabQuizScreen = ({ navigation }) => {
   ];
 
   const handleLevelPress = (levelNumber) => {
-    console.log(`Level ${levelNumber} selected`);
-    navigation.navigate('StackQuizScreen', { levelNumber });
+    const quizLevel = quizData.find(quiz => quiz.id === levelNumber);
+    if (quizLevel.isActive) {
+      console.log(`Level ${levelNumber} selected`);
+      navigation.navigate('StackQuizScreen', { levelNumber });
+    } else {
+      Alert.alert(
+        "Unlock Level",
+        "Do you want to unlock this level for 20 scores?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          { 
+            text: "Unlock", 
+            onPress: () => handleUnlockLevel(levelNumber)
+          }
+        ]
+      );
+    }
+  };
+
+  const handleUnlockLevel = async (levelNumber) => {
+    const success = await unlockLevelWithScore(levelNumber);
+    if (success) {
+      Alert.alert("Success", "Level unlocked successfully!");
+    } else {
+      Alert.alert("Error", "Not enough score to unlock this level.");
+    }
   };
 
   return (
@@ -41,6 +74,7 @@ const TabQuizScreen = ({ navigation }) => {
       source={require('../../assets/image/bg/map.png')} 
       style={styles.image}
     >
+      <TotalScoreDisplay score={totalScore} />
       {levels.map((level) => {
         const quizLevel = quizData.find(quiz => quiz.id === level.number);
         const isActive = quizLevel ? quizLevel.isActive : false;
@@ -50,7 +84,6 @@ const TabQuizScreen = ({ navigation }) => {
             key={level.number}
             style={[styles.levelArea, { top: level.top, left: level.left }]}
             onPress={() => handleLevelPress(level.number)}
-            disabled={!isActive}
           >
             <LevelMarker 
               number={level.number} 
@@ -100,5 +133,30 @@ const styles = StyleSheet.create({
   },
   inactiveMarkerText: {
     color: '#555',
+  },
+  scoreContainer: {
+    // position: 'absolute',
+    // top: 50,
+    // left: 0,
+    // right: 0,
+    // alignItems: 'center',
+    zIndex: 1,
+    marginTop: '12%',
+    borderRadius: 15,
+    overflow: 'hidden',
+    marginHorizontal: '30%',
+   
+  },
+  scoreText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+    textAlign: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
   },
 });
