@@ -1,22 +1,27 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, ImageBackground, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ImageBackground, Dimensions, TouchableOpacity } from 'react-native';
 import { useAppContextProvider } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 import { shipQuizData } from '../../data/shipQuiz';
 import { BlurView } from '@react-native-community/blur';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 const cardWidth = width * 0.9;
 const cardHeight = 400;
 
-const AdmiralCard = ({ admiral, quizId, isActive }) => {
+const AdmiralCard = ({ admiral, quizId, isActive, onPress }) => {
   if (!admiral) return null;
 
   const originalQuiz = shipQuizData.find(quiz => quiz.id === quizId);
   const admiralImage = originalQuiz?.admiralInfo?.image;
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity 
+      style={styles.card}
+      onPress={onPress}
+      disabled={!isActive}
+    >
       <ImageBackground 
         source={admiralImage} 
         style={styles.admiralImage}
@@ -43,12 +48,13 @@ const AdmiralCard = ({ admiral, quizId, isActive }) => {
           </View>
         </LinearGradient>
       </ImageBackground>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const TabStatistickScreen = () => {
   const { quizData } = useAppContextProvider();
+  const navigation = useNavigation();
 
   const admiralsData = quizData
     .filter(quiz => quiz.admiralInfo)
@@ -57,6 +63,13 @@ const TabStatistickScreen = () => {
       quizId: quiz.id,
       isActive: quiz.isActive
     }));
+
+  const handleAdmiralPress = (admiral, quizId) => {
+    navigation.navigate('StackAdmiralScreen', {
+      admiral,
+      quizId
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -75,10 +88,11 @@ const TabStatistickScreen = () => {
               admiral={admiral} 
               quizId={quizId}
               isActive={isActive}
+              onPress={() => handleAdmiralPress(admiral, quizId)}
             />
           ))}
         </ScrollView>
-          <View style={{height: 120}}></View>
+        <View style={{height: 120}} />
       </LinearGradient>
     </View>
   );
