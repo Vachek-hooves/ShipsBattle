@@ -198,6 +198,17 @@ const StackShipsBattle = () => {
     }
   };
 
+  const convertScoreToShots = () => {
+    const shotsToAdd = Math.floor(score / 5);
+    if (shotsToAdd > 0) {
+      setScore(prevScore => prevScore % 5);
+      setShootCount(prevCount => prevCount + shotsToAdd);
+      Alert.alert("Shots Added", `Converted ${shotsToAdd * 5} points to ${shotsToAdd} shots.`);
+    } else {
+      Alert.alert("Not Enough Score", "You need at least 5 points to convert to a shot.");
+    }
+  };
+
   const exitGame = () => {
     Alert.alert(
       "Exit Game",
@@ -339,6 +350,9 @@ const StackShipsBattle = () => {
           <TouchableOpacity style={styles.buyButton} onPress={buyShot}>
             <Text style={styles.buyButtonText}>Buy Shot (10 pts)</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.convertButton} onPress={convertScoreToShots}>
+            <Text style={styles.convertButtonText}>Convert Score to Shots</Text>
+          </TouchableOpacity>
           <View style={styles.toggleContainer}>
             <Text style={styles.toggleText}>Use Game Score</Text>
             <Switch
@@ -479,6 +493,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   exitButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  convertButton: {
+    backgroundColor: 'purple',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  convertButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },
