@@ -30,8 +30,8 @@ const TabShipsBattle = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
       <ImageBackground source={require('../../assets/image/bg/shipsBatlle.png')} style={styles.backgroundImage}>
+    <SafeAreaView style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.title}>Choose Your Battle</Text>
           <FlatList
@@ -44,8 +44,8 @@ const TabShipsBattle = ({ navigation }) => {
             showsVerticalScrollIndicator={false}
           />
         </View>
-      </ImageBackground>
     </SafeAreaView>
+      </ImageBackground>
   );
 };
 

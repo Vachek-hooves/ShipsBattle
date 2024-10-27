@@ -110,9 +110,9 @@ const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 24 : 16,
-    left: 20,
-    right: 20,
-    height: 65,
+    left: 10,
+    right: 10,
+    height: 85,
     borderRadius: 15,
     backgroundColor: 'transparent',
     elevation: 0,
@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 4,
+    paddingBottom: 10,
   },
   tabBarGradient: {
     position: 'absolute',
@@ -136,15 +137,17 @@ const styles = StyleSheet.create({
   tabBarLabel: {
     fontSize: 12,
     fontWeight: '600',
-    paddingBottom: 5,
+    // paddingBottom: 5,
+    marginTop: 15,
   },
   tabBarItem: {
-    paddingTop: 8,
+    paddingTop: 10,
   },
   tabIcon: {
-    width: 24,
-    height: 24,
-    marginTop: 2,
+    width: 44,
+    height: 45,
+    // marginTop: 2,
+    marginTop: 12,
   },
 });
 
