@@ -93,6 +93,11 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const updateTotalScore = (newScore) => {
+    setTotalScore(newScore);
+    AsyncStorage.setItem('totalScore', newScore.toString());
+  };
+
   const value = {
     quizData,
     totalScore,
@@ -100,6 +105,7 @@ export const AppContextProvider = ({ children }) => {
     saveQuizScore,
     unlockNextLevel,
     unlockLevelWithScore,
+    updateTotalScore,  // Add this new function to the context value
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
