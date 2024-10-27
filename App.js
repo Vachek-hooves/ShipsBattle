@@ -41,7 +41,7 @@ const TabNavigator = () => {
           } else if (route.name === 'TabShipsBattle') {
             iconSource = require('./assets/icons/game-controller.png');
           } else if (route.name === 'TabStatistickScreen') {
-            iconSource = require('./assets/icons/stats-chart.png');
+            iconSource = require('./assets/icons/history.png');
           }
 
           return (
@@ -79,7 +79,7 @@ const TabNavigator = () => {
       <Tab.Screen 
         name="TabStatistickScreen" 
         component={TabStatistickScreen}
-        options={{ tabBarLabel: 'Stats' }}
+        options={{ tabBarLabel: 'History' }}
       />
     </Tab.Navigator>
   );
