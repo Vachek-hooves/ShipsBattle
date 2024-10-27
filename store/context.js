@@ -34,7 +34,6 @@ export const AppContextProvider = ({ children }) => {
 
   const calculateTotalScore = (data) => {
     const total = data.reduce((sum, quiz) => sum + (parseInt(quiz.score) || 0), 0);
-    console.log('Calculated total score:', total);
     setTotalScore(total);
   };
 
@@ -53,10 +52,22 @@ export const AppContextProvider = ({ children }) => {
       const updatedQuizData = quizData.map(quiz => 
         quiz.id === quizId ? { ...quiz, score: score.toString(), isCompleted: true } : quiz
       );
-      console.log('Saving quiz score:', quizId, score);
       await updateQuizData(updatedQuizData);
     } catch (error) {
       console.error('Error saving quiz score:', error);
+    }
+  };
+
+  const unlockNextLevel = async (currentLevelNumber) => {
+    try {
+      const nextLevelNumber = currentLevelNumber + 1;
+      const updatedQuizData = quizData.map(quiz => 
+        quiz.id === nextLevelNumber ? { ...quiz, isActive: true } : quiz
+      );
+      await updateQuizData(updatedQuizData);
+      console.log(`Unlocked level ${nextLevelNumber}`);
+    } catch (error) {
+      console.error('Error unlocking next level:', error);
     }
   };
 
@@ -65,6 +76,7 @@ export const AppContextProvider = ({ children }) => {
     totalScore,
     updateQuizData,
     saveQuizScore,
+    unlockNextLevel,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
