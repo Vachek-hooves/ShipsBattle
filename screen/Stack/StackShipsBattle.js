@@ -13,9 +13,8 @@ import {
   Switch,
 } from 'react-native';
 import Sound from 'react-native-sound';
-import { battleShips } from '../../data/battleShips';
 import { useAppContextProvider } from '../../store/context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
@@ -27,6 +26,8 @@ const INITIAL_ENEMY_COUNT = 3;
 
 const StackShipsBattle = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { enemyShip, playerShip, level } = route.params;
   const { totalScore, updateTotalScore } = useAppContextProvider();
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -34,7 +35,7 @@ const StackShipsBattle = () => {
   const [shootCount, setShootCount] = useState(3);
   const [useGameScore, setUseGameScore] = useState(false);
   const [finalTotalScore, setFinalTotalScore] = useState(totalScore);
-  const playerShip = useRef(
+  const playerShipPosition = useRef(
     new Animated.ValueXY({
       x: SCREEN_WIDTH / 2 - SHIP_SIZE / 2,
       y: SCREEN_HEIGHT - SHIP_SIZE * 2,
@@ -49,8 +50,9 @@ const StackShipsBattle = () => {
           y: Math.random() * (SCREEN_HEIGHT / 3),
         }),
         isAlive: true,
-        speed: Math.random() * 0.5 + 0.5, // Random speed between 0.5 and 1
-        direction: Math.random() * 2 * Math.PI, // Random direction in radians
+        speed: Math.random() * 0.5 + 0.5,
+        direction: Math.random() * 2 * Math.PI,
+        image: enemyShip,
       }))
   );
   const [bullets, setBullets] = useState([]);
@@ -108,7 +110,7 @@ const StackShipsBattle = () => {
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderMove: (_, gesture) => {
-      playerShip.x.setValue(gesture.moveX - SHIP_SIZE / 2);
+      playerShipPosition.x.setValue(gesture.moveX - SHIP_SIZE / 2);
     },
   });
 
@@ -156,8 +158,8 @@ const StackShipsBattle = () => {
     if (shootCount > 0) {
       setShootCount(prevCount => prevCount - 1);
       const newBullet = new Animated.ValueXY({
-        x: playerShip.x._value + SHIP_SIZE / 2 - BULLET_SIZE / 2,
-        y: playerShip.y._value,
+        x: playerShipPosition.x._value + SHIP_SIZE / 2 - BULLET_SIZE / 2,
+        y: playerShipPosition.y._value,
       });
       setBullets((prevBullets) => [...prevBullets, newBullet]);
 
@@ -278,8 +280,8 @@ const StackShipsBattle = () => {
       enemyShips.forEach((ship) => {
         if (
           ship.isAlive &&
-          Math.abs(ship.position.x._value - playerShip.x._value) < SHIP_SIZE &&
-          Math.abs(ship.position.y._value - playerShip.y._value) < SHIP_SIZE
+          Math.abs(ship.position.x._value - playerShipPosition.x._value) < SHIP_SIZE &&
+          Math.abs(ship.position.y._value - playerShipPosition.y._value) < SHIP_SIZE
         ) {
           handleGameCompletion();
           clearInterval(interval);
@@ -311,6 +313,7 @@ const StackShipsBattle = () => {
         source={require('../../assets/image/bg/battleMap.png')}
         style={styles.backgroundImage}
       >
+        <Text style={styles.levelText}>Level: {level}</Text>
         <Text style={styles.scoreText}>Game Score: {score}</Text>
         <Text style={styles.shootCountText}>Shots left: {shootCount}</Text>
         <Text style={styles.totalScoreText}>Total Score: {totalScore}</Text>
@@ -322,7 +325,7 @@ const StackShipsBattle = () => {
                 style={[styles.enemyShip, ship.position.getLayout()]}
               >
                 <Image
-                  source={battleShips[0].enemyShip}
+                  source={ship.image}
                   style={styles.enemyShipImage}
                 />
               </Animated.View>
@@ -336,10 +339,10 @@ const StackShipsBattle = () => {
         ))}
         <Animated.View
           {...panResponder.panHandlers}
-          style={[styles.playerShip, playerShip.getLayout()]}
+          style={[styles.playerShip, playerShipPosition.getLayout()]}
         >
           <Image
-            source={battleShips[0].playerShip}
+            source={playerShip}
             style={styles.playerShipImage}
           />
         </Animated.View>
@@ -505,5 +508,12 @@ const styles = StyleSheet.create({
   convertButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  levelText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
