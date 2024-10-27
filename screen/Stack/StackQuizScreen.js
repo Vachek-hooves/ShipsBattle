@@ -12,7 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { shipQuizData } from '../../data/shipQuiz'; // Import the local data
 
 const StackQuizScreen = ({ route, navigation }) => {
-  const { quizData, updateQuizData } = useAppContextProvider();
+  const { quizData, updateQuizData, saveQuizScore } = useAppContextProvider();
   const { levelNumber } = route.params;
   const quizLevel = quizData.find((quiz) => quiz.id === levelNumber);
   const localQuizLevel = shipQuizData.find((quiz) => quiz.id === levelNumber); // Get local data
@@ -38,8 +38,14 @@ const StackQuizScreen = ({ route, navigation }) => {
     if (currentQuestionIndex + 1 < quizLevel.questions.length) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      setShowResult(true);
+      handleQuizCompletion();
     }
+  };
+
+  const handleQuizCompletion = () => {
+    setShowResult(true);
+    saveQuizScore(levelNumber, score + 1); // Add 1 to account for the last question
+    console.log(`Quiz completed. Level: ${levelNumber}, Score: ${score + 1}`);
   };
 
   const restartQuiz = () => {
@@ -49,10 +55,6 @@ const StackQuizScreen = ({ route, navigation }) => {
   };
 
   const finishQuiz = () => {
-    const updatedQuizData = quizData.map((quiz) =>
-      quiz.id === levelNumber ? { ...quiz, isCompleted: true } : quiz
-    );
-    updateQuizData(updatedQuizData);
     navigation.goBack();
   };
 
