@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ImageBackground, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, ImageBackground, TouchableOpacity, Text, Alert } from 'react-native';
 import { useAppContextProvider } from '../../store/context';
 
 const LevelMarker = ({ number, isActive, top, left }) => (
@@ -22,7 +22,7 @@ const TotalScoreDisplay = ({ score }) => (
 );
 
 const TabQuizScreen = ({ navigation }) => {
-  const { quizData, totalScore } = useAppContextProvider();
+  const { quizData, totalScore, unlockLevelWithScore } = useAppContextProvider();
 
   const levels = [
     { number: 1, top: '15%', left: '20%' },
@@ -38,8 +38,35 @@ const TabQuizScreen = ({ navigation }) => {
   ];
 
   const handleLevelPress = (levelNumber) => {
-    console.log(`Level ${levelNumber} selected`);
-    navigation.navigate('StackQuizScreen', { levelNumber });
+    const quizLevel = quizData.find(quiz => quiz.id === levelNumber);
+    if (quizLevel.isActive) {
+      console.log(`Level ${levelNumber} selected`);
+      navigation.navigate('StackQuizScreen', { levelNumber });
+    } else {
+      Alert.alert(
+        "Unlock Level",
+        "Do you want to unlock this level for 20 scores?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          { 
+            text: "Unlock", 
+            onPress: () => handleUnlockLevel(levelNumber)
+          }
+        ]
+      );
+    }
+  };
+
+  const handleUnlockLevel = async (levelNumber) => {
+    const success = await unlockLevelWithScore(levelNumber);
+    if (success) {
+      Alert.alert("Success", "Level unlocked successfully!");
+    } else {
+      Alert.alert("Error", "Not enough score to unlock this level.");
+    }
   };
 
   return (
@@ -57,7 +84,6 @@ const TabQuizScreen = ({ navigation }) => {
             key={level.number}
             style={[styles.levelArea, { top: level.top, left: level.left }]}
             onPress={() => handleLevelPress(level.number)}
-            disabled={!isActive}
           >
             <LevelMarker 
               number={level.number} 

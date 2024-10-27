@@ -71,12 +71,35 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const unlockLevelWithScore = async (levelNumber) => {
+    if (totalScore >= 20) {
+      try {
+        const updatedQuizData = quizData.map(quiz => 
+          quiz.id === levelNumber ? { ...quiz, isActive: true } : quiz
+        );
+        const newTotalScore = totalScore - 20;
+        await updateQuizData(updatedQuizData);
+        setTotalScore(newTotalScore);
+        await AsyncStorage.setItem('totalScore', newTotalScore.toString());
+        console.log(`Unlocked level ${levelNumber} with score`);
+        return true;
+      } catch (error) {
+        console.error('Error unlocking level with score:', error);
+        return false;
+      }
+    } else {
+      console.log('Not enough score to unlock level');
+      return false;
+    }
+  };
+
   const value = {
     quizData,
     totalScore,
     updateQuizData,
     saveQuizScore,
     unlockNextLevel,
+    unlockLevelWithScore,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
