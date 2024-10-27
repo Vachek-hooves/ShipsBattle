@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,9 +9,13 @@ import {
   PanResponder,
   Image,
   ImageBackground,
+  Alert,
+  Switch,
 } from 'react-native';
 import Sound from 'react-native-sound';
 import { battleShips } from '../../data/battleShips';
+import { useAppContextProvider } from '../../store/context';
+import { useNavigation } from '@react-navigation/native';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
@@ -22,9 +26,14 @@ const BULLET_SIZE = 10;
 const INITIAL_ENEMY_COUNT = 3;
 
 const StackShipsBattle = () => {
+  const navigation = useNavigation();
+  const { totalScore, updateTotalScore } = useAppContextProvider();
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [enemyCount, setEnemyCount] = useState(INITIAL_ENEMY_COUNT);
+  const [shootCount, setShootCount] = useState(3);
+  const [useGameScore, setUseGameScore] = useState(false);
+  const [finalTotalScore, setFinalTotalScore] = useState(totalScore);
   const playerShip = useRef(
     new Animated.ValueXY({
       x: SCREEN_WIDTH / 2 - SHIP_SIZE / 2,
@@ -47,6 +56,19 @@ const StackShipsBattle = () => {
   const [bullets, setBullets] = useState([]);
   const shotSoundEffect = useRef(null);
   const explosionSoundEffect = useRef(null);
+
+  const updateScore = useCallback((points) => {
+    setScore(prevScore => prevScore + points);
+  }, []);
+
+  const handleGameCompletion = useCallback(() => {
+    if (!gameOver) {
+      const newTotalScore = totalScore + score;
+      setGameOver(true);
+      setFinalTotalScore(newTotalScore);
+      updateTotalScore(newTotalScore);
+    }
+  }, [totalScore, score, updateTotalScore, gameOver]);
 
   useEffect(() => {
     // Load the sound files
@@ -131,30 +153,77 @@ const StackShipsBattle = () => {
   }, []);
 
   const shoot = () => {
-    const newBullet = new Animated.ValueXY({
-      x: playerShip.x._value + SHIP_SIZE / 2 - BULLET_SIZE / 2,
-      y: playerShip.y._value,
-    });
-    setBullets((prevBullets) => [...prevBullets, newBullet]);
-
-    // Play the shot sound
-    if (shotSoundEffect.current) {
-      shotSoundEffect.current.play((success) => {
-        if (!success) {
-          console.log('playback failed due to audio decoding errors');
-        }
+    if (shootCount > 0) {
+      setShootCount(prevCount => prevCount - 1);
+      const newBullet = new Animated.ValueXY({
+        x: playerShip.x._value + SHIP_SIZE / 2 - BULLET_SIZE / 2,
+        y: playerShip.y._value,
       });
-    }
+      setBullets((prevBullets) => [...prevBullets, newBullet]);
 
-    Animated.timing(newBullet.y, {
-      toValue: -BULLET_SIZE,
-      duration: 1000,
-      useNativeDriver: false,
-    }).start(() => {
-      setBullets((prevBullets) =>
-        prevBullets.filter((bullet) => bullet !== newBullet)
-      );
-    });
+      // Play the shot sound
+      if (shotSoundEffect.current) {
+        shotSoundEffect.current.play((success) => {
+          if (!success) {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }
+
+      Animated.timing(newBullet.y, {
+        toValue: -BULLET_SIZE,
+        duration: 1000,
+        useNativeDriver: false,
+      }).start(() => {
+        setBullets((prevBullets) =>
+          prevBullets.filter((bullet) => bullet !== newBullet)
+        );
+      });
+    } else {
+      Alert.alert("No more shots", "Buy more shots or end the game.");
+    }
+  };
+
+  const buyShot = () => {
+    const currentScore = useGameScore ? score : totalScore;
+    if (currentScore >= 10) {
+      if (useGameScore) {
+        setScore(prevScore => prevScore - 10);
+      } else {
+        updateTotalScore(totalScore - 10);
+      }
+      setShootCount(prevCount => prevCount + 1);
+    } else {
+      Alert.alert("Not enough score", `You need 10 points in your ${useGameScore ? 'game' : 'total'} score to buy a shot.`);
+    }
+  };
+
+  const convertScoreToShots = () => {
+    const shotsToAdd = Math.floor(score / 5);
+    if (shotsToAdd > 0) {
+      setScore(prevScore => prevScore % 5);
+      setShootCount(prevCount => prevCount + shotsToAdd);
+      Alert.alert("Shots Added", `Converted ${shotsToAdd * 5} points to ${shotsToAdd} shots.`);
+    } else {
+      Alert.alert("Not Enough Score", "You need at least 5 points to convert to a shot.");
+    }
+  };
+
+  const exitGame = () => {
+    Alert.alert(
+      "Exit Game",
+      "Are you sure you want to exit? Your current game progress will be lost.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Exit", 
+          onPress: () => {
+            updateTotalScore(totalScore + score);
+            navigation.goBack();
+          }
+        }
+      ]
+    );
   };
 
   useEffect(() => {
@@ -172,7 +241,7 @@ const StackShipsBattle = () => {
               Math.abs(bullet.x._value - ship.position.x._value) < SHIP_SIZE &&
               Math.abs(bullet.y._value - ship.position.y._value) < SHIP_SIZE
             ) {
-              setScore((prevScore) => prevScore + 1);
+              updateScore(5);
               setEnemyCount((prevCount) => prevCount - 1);
               setEnemyShips((prevShips) =>
                 prevShips.map((s, i) =>
@@ -202,7 +271,7 @@ const StackShipsBattle = () => {
       });
 
       if (enemyCount === 0) {
-        setGameOver(true);
+        handleGameCompletion();
         clearInterval(interval);
       }
 
@@ -212,14 +281,14 @@ const StackShipsBattle = () => {
           Math.abs(ship.position.x._value - playerShip.x._value) < SHIP_SIZE &&
           Math.abs(ship.position.y._value - playerShip.y._value) < SHIP_SIZE
         ) {
-          setGameOver(true);
+          handleGameCompletion();
           clearInterval(interval);
         }
       });
     }, 16);
 
     return () => clearInterval(interval);
-  }, [enemyCount]);
+  }, [enemyCount, updateScore, handleGameCompletion]);
 
   if (gameOver) {
     return (
@@ -228,6 +297,10 @@ const StackShipsBattle = () => {
           {enemyCount === 0 ? 'You Win!' : 'Game Over'}
         </Text>
         <Text style={styles.scoreText}>Score: {score}</Text>
+        <Text style={styles.totalScoreText}>Total Score: {finalTotalScore}</Text>
+        <TouchableOpacity style={styles.exitButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.exitButtonText}>Exit Game</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -238,7 +311,9 @@ const StackShipsBattle = () => {
         source={require('../../assets/image/bg/battleMap.png')}
         style={styles.backgroundImage}
       >
-        <Text style={styles.scoreText}>Score: {score}</Text>
+        <Text style={styles.scoreText}>Game Score: {score}</Text>
+        <Text style={styles.shootCountText}>Shots left: {shootCount}</Text>
+        <Text style={styles.totalScoreText}>Total Score: {totalScore}</Text>
         {enemyShips.map(
           (ship, index) =>
             ship.isAlive && (
@@ -270,6 +345,24 @@ const StackShipsBattle = () => {
         </Animated.View>
         <TouchableOpacity style={styles.shootButton} onPress={shoot}>
           <Text style={styles.shootButtonText}>Shoot</Text>
+        </TouchableOpacity>
+        <View style={styles.buyButtonContainer}>
+          <TouchableOpacity style={styles.buyButton} onPress={buyShot}>
+            <Text style={styles.buyButtonText}>Buy Shot (10 pts)</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.convertButton} onPress={convertScoreToShots}>
+            <Text style={styles.convertButtonText}>Convert Score to Shots</Text>
+          </TouchableOpacity>
+          <View style={styles.toggleContainer}>
+            <Text style={styles.toggleText}>Use Game Score</Text>
+            <Switch
+              value={useGameScore}
+              onValueChange={setUseGameScore}
+            />
+          </View>
+        </View>
+        <TouchableOpacity style={styles.exitButton} onPress={exitGame}>
+          <Text style={styles.exitButtonText}>Exit Game</Text>
         </TouchableOpacity>
       </ImageBackground>
     </View>
@@ -350,5 +443,67 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: SCREEN_HEIGHT / 3,
+  },
+  buyButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    backgroundColor: 'orange',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buyButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  shootCountText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    zIndex: 1000,
+  },
+  totalScoreText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    zIndex: 1000,
+  },
+  buyButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  toggleText: {
+    color: 'white',
+    marginRight: 10,
+  },
+  exitButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+  },
+  exitButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  convertButton: {
+    backgroundColor: 'purple',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  convertButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
