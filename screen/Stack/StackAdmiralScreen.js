@@ -1,18 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Dimensions, ImageBackground } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Dimensions, ImageBackground } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { shipQuizData } from '../../data/shipQuiz';
+import { fleet } from '../../data/fleet';
 
 const { width } = Dimensions.get('window');
 const imageHeight = width * 1.4;
 
 export default function StackAdmiralScreen() {
   const route = useRoute();
+  const navigation = useNavigation();
   const { admiral, quizId } = route.params;
   
   const originalQuiz = shipQuizData.find(quiz => quiz.id === quizId);
   const admiralImage = originalQuiz?.admiralInfo?.image;
+  const fleetData = fleet.find(item => item.admiral === admiral.name);
+
+  const handleBattlePress = () => {
+    if (fleetData) {
+      navigation.navigate('StackBattleScreen', {
+        battle: fleetData.battle,
+        admiralName: admiral.name
+      });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -39,20 +51,28 @@ export default function StackAdmiralScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.content}
           >
-            {/* <View style={styles.medalIcon}>
-              <Image 
-                source={require('../../assets/icons/medal.png')} 
-                style={styles.medalImage}
-                resizeMode="contain"
-              />
-            </View> */}
-
             <View style={styles.quoteContainer}>
               <Text style={styles.quote}>"{admiral.famousQuote}"</Text>
               <View style={styles.quoteLine} />
             </View>
 
             <Text style={styles.description}>{admiral.description}</Text>
+
+            {fleetData && (
+              <TouchableOpacity 
+                style={styles.battleButton}
+                onPress={handleBattlePress}
+              >
+                <LinearGradient
+                  colors={['#4ECDC4', '#45b1a8']}
+                  style={styles.battleButtonGradient}
+                >
+                  <Text style={styles.battleButtonText}>
+                    View Admiral's Battle
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
 
             <View style={styles.achievementsContainer}>
               <Text style={styles.achievementsTitle}>Notable Achievements</Text>
@@ -186,5 +206,27 @@ const styles = StyleSheet.create({
   achievementText: {
     fontSize: 16,
     color: '#fff',
+  },
+  battleButton: {
+    marginVertical: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  battleButtonGradient: {
+    padding: 15,
+    alignItems: 'center',
+  },
+  battleButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
 });

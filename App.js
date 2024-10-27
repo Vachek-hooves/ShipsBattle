@@ -15,6 +15,7 @@ import {
 import {
   StackAdmiralScreen,
   StackBattleDetail,
+  StackBattleScreen,
   StackQuizScreen,
   StackShipsBattle,
 } from './screen/Stack';
@@ -113,6 +114,7 @@ function App() {
             name="StackBattleDetail"
             component={StackBattleDetail}
           />
+          <Stack.Screen name='StackBattleScreen' component={StackBattleScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </AppContextProvider>

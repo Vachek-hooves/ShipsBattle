@@ -1,5 +1,14 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ImageBackground, FlatList, Dimensions, SafeAreaView } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ImageBackground,
+  FlatList,
+  Dimensions,
+  SafeAreaView,
+} from 'react-native';
 import { battleShips } from '../../data/battleShips';
 
 const { width, height } = Dimensions.get('window');
@@ -8,11 +17,17 @@ const cardHeight = height * 0.25;
 
 const ShipCard = ({ ship, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.card}>
-    <ImageBackground source={ship.enemyShip} style={styles.cardBackground} resizeMode="cover">
+    <ImageBackground
+      source={ship.enemyShip}
+      style={styles.cardBackground}
+      resizeMode="cover"
+    >
       <View style={styles.cardOverlay}>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Level {ship.id}</Text>
-          <Text style={styles.cardSubtitle}>{ship.name || `Ship ${ship.id}`}</Text>
+          <Text style={styles.cardSubtitle}>
+            {ship.name || `Ship ${ship.id}`}
+          </Text>
         </View>
       </View>
     </ImageBackground>
@@ -21,17 +36,21 @@ const ShipCard = ({ ship, onPress }) => (
 
 const TabShipsBattle = ({ navigation }) => {
   const startBattle = (ship) => {
-    console.log(ship)
-    navigation.navigate('StackShipsBattle', { 
+    console.log(ship);
+    navigation.navigate('StackShipsBattle', {
       enemyShip: ship.enemyShip,
       playerShip: ship.playerShip,
-      level: ship.id
+      level: ship.id,
     });
   };
 
   return (
-      <ImageBackground source={require('../../assets/image/bg/shipsBatlle.png')} style={styles.backgroundImage}>
-    <SafeAreaView style={styles.container}>
+    <ImageBackground
+      source={require('../../assets/image/bg/shipsBatlle.png')}
+      style={styles.backgroundImage}
+      blurRadius={100}
+    >
+      <SafeAreaView style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.title}>Choose Your Battle</Text>
           <FlatList
@@ -44,9 +63,9 @@ const TabShipsBattle = ({ navigation }) => {
             showsVerticalScrollIndicator={false}
           />
         </View>
-    </SafeAreaView>
-    <View style={{height: 120}}></View>
-      </ImageBackground>
+      </SafeAreaView>
+      <View style={{ height: 120 }}></View>
+    </ImageBackground>
   );
 };
 
