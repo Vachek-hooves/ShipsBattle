@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 const cardWidth = width * 0.9;
-const cardHeight = 400;
+const cardHeight = 550;
 
 const AdmiralCard = ({ admiral, quizId, isActive, onPress }) => {
   if (!admiral) return null;
