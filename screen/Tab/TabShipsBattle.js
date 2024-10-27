@@ -45,6 +45,7 @@ const TabShipsBattle = ({ navigation }) => {
           />
         </View>
     </SafeAreaView>
+    <View style={{height: 120}}></View>
       </ImageBackground>
   );
 };

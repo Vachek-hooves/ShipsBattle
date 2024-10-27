@@ -1,7 +1,7 @@
 import { Image } from "react-native";
 
 export const fleet = [
-  {
+  {id:1,
     admiral: "Horatio Nelson",
     ship: "HMS Victory",
     type: "104-gun first-rate ship of the line",
@@ -17,7 +17,7 @@ export const fleet = [
       description: "The Battle of Trafalgar was one of the most decisive naval engagements in British history. Led by Admiral Horatio Nelson, the British fleet faced off against a combined French-Spanish fleet off the coast of Spain. Despite being outnumbered, Nelson's innovative tactics—breaking the enemy's line and engaging them in close combat—led to a resounding victory for the British. This battle not only secured Britain's naval dominance but also ensured that Napoleon's plans for invading England were thwarted. Nelson, though mortally wounded during the battle, became a national hero, and his legacy as one of the greatest naval commanders endures to this day."
     }
   },
-  {
+  {id:2,
     admiral: "Francis Drake",
     ship: "Golden Hind",
     type: "Galleon",
@@ -33,7 +33,7 @@ export const fleet = [
       description: "The Battle of Gravelines was the pivotal confrontation during the Spanish Armada's failed attempt to invade England in 1588. Under the command of Sir Francis Drake and Lord Charles Howard, the English fleet utilized smaller, more maneuverable ships to attack the larger and slower Spanish galleons. The Spanish Armada was decisively defeated, with many of its ships either destroyed or scattered by storms. Drake's leadership and bold tactics were instrumental in this victory, solidifying his reputation as one of England's great maritime heroes and ensuring England's survival as a Protestant nation."
     }
   },
-  {
+  {id:3,
     admiral: "Edward Vernon",
     ship: "HMS Burford",
     type: "70-gun third-rate ship of the line",
@@ -49,7 +49,7 @@ export const fleet = [
       description: "Admiral Edward Vernon made his mark in the War of Jenkins' Ear with the successful capture of the Spanish-held port of Porto Bello, located in present-day Panama. Vernon led a British squadron in a surprise attack against the fortified city. The swift victory without significant British losses was celebrated across Britain and contributed to Vernon's status as a reformer and tactician in the Royal Navy. The triumph at Porto Bello showcased Britain's growing power in the Caribbean and helped establish its influence in the region."
     }
   },
-  {
+  {id:4,
     admiral: "John Jellicoe",
     ship: "HMS Iron Duke",
     type: "Dreadnought battleship",
@@ -65,7 +65,7 @@ export const fleet = [
       description: "The Battle of Jutland, the largest naval battle of World War I, took place between the British Grand Fleet, commanded by Admiral John Jellicoe, and the German High Seas Fleet. Although the battle was tactically inconclusive, Jellicoe's cautious approach ensured that the British fleet maintained control of the North Sea. His decisions during the engagement were both praised and criticized, but Jellicoe's primary objective—to prevent the German fleet from breaking the British naval blockade—was achieved, ultimately contributing to the Allied victory in the war."
     }
   },
-  {
+  {id:5,
     admiral: "David Beatty",
     ship: "HMS Lion",
     type: "Battlecruiser",
@@ -81,7 +81,7 @@ export const fleet = [
       description: "Admiral David Beatty played a crucial role in the Battle of Jutland as the commander of the British battlecruiser squadron. Known for his aggressive style of command, Beatty engaged the German fleet early in the battle, though his force suffered heavy losses due to inadequate armor on the British ships. Despite these setbacks, Beatty's actions helped draw the German fleet into Jellicoe's path, setting the stage for the larger engagement. Beatty's reputation as a daring and charismatic leader was solidified, and he later succeeded Jellicoe as First Sea Lord."
     }
   },
-  {
+  {id:6,
     admiral: "George Anson",
     ship: "HMS Centurion",
     type: "60-gun fourth-rate ship of the line",
@@ -97,7 +97,7 @@ export const fleet = [
       description: "George Anson, a celebrated British admiral and explorer, commanded the British fleet during the Battle of Cape Finisterre during the War of the Austrian Succession. The British engaged a French convoy attempting to resupply their forces in North America. Anson's fleet decisively defeated the French, capturing several ships and ensuring British dominance in the Atlantic. Anson's leadership in this and other naval engagements helped secure Britain's position as a global maritime power."
     }
   },
-  {
+  {id:7,
     admiral: "Charles Napier",
     ship: "HMS St. Vincent",
     type: "120-gun first-rate ship of the line",
@@ -113,7 +113,7 @@ export const fleet = [
       description: "The Battle of Copenhagen was part of the Napoleonic Wars and saw the British fleet, led by Admiral Sir Hyde Parker and Vice-Admiral Horatio Nelson, engage the Danish navy. Although not in overall command, Charles Napier played a vital role as a captain in this action. The battle ended in a British victory, with much of the Danish fleet destroyed or captured. Napier's courage and seamanship were recognized, and this engagement cemented British control over northern European waters during a critical period of the Napoleonic Wars."
     }
   },
-  {
+  {id:8,
     admiral: "James Gambier",
     ship: "HMS Prince of Wales",
     type: "98-gun second-rate ship of the line",
@@ -129,7 +129,7 @@ export const fleet = [
       description: "Admiral James Gambier was the commander of the British fleet during the Second Battle of Copenhagen in 1807, a key event in the Napoleonic Wars. The British, fearing that Denmark's fleet might fall into Napoleon's hands, launched a preemptive strike on the Danish capital. After a brutal bombardment, Gambier's fleet seized the Danish navy, preventing it from being used against Britain. Although controversial due to the attack on a neutral power, this action was seen as a necessary measure to maintain British naval superiority in Europe."
     }
   },
-  {
+  {id:9,
     admiral: "Richard Howe",
     ship: "HMS Queen Charlotte",
     type: "100-gun first-rate ship of the line",
@@ -145,7 +145,7 @@ export const fleet = [
       description: "The Battle of Ushant was one of the early naval engagements of the American Revolutionary War. Admiral Richard Howe, commanding the British Channel Fleet, confronted a French fleet off the coast of Brittany. The battle ended inconclusively, with both fleets sustaining damage but neither side claiming a clear victory. However, Howe's leadership in defending British waters from French intervention during the American War of Independence was widely respected, and he would later play key roles in other major naval operations."
     }
   },
-  {
+  {id:10,
     admiral: "Samuel Hood",
     ship: "HMS Barfleur",
     type: "90-gun second-rate ship of the line",
