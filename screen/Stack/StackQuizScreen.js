@@ -32,7 +32,7 @@ const StackQuizScreen = ({ route, navigation }) => {
   const handleAnswer = (selectedAnswer) => {
     const currentQuestion = quizLevel.questions[currentQuestionIndex];
     if (selectedAnswer === currentQuestion.correctAnswer) {
-      setScore(score + 1);
+      setScore(prevScore => prevScore + 1);
     }
 
     if (currentQuestionIndex + 1 < quizLevel.questions.length) {
@@ -44,7 +44,7 @@ const StackQuizScreen = ({ route, navigation }) => {
 
   const handleQuizCompletion = () => {
     setShowResult(true);
-    const finalScore = score + 1; // Add 1 to account for the last question
+    const finalScore = score;  // Remove the +1 here
     saveQuizScore(levelNumber, finalScore);
     console.log(`Quiz completed. Level: ${levelNumber}, Score: ${finalScore}`);
     
