@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,10 +10,12 @@ import {
   Image,
   ImageBackground,
   Alert,
+  Switch,
 } from 'react-native';
 import Sound from 'react-native-sound';
 import { battleShips } from '../../data/battleShips';
 import { useAppContextProvider } from '../../store/context';
+import { useNavigation } from '@react-navigation/native';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
@@ -24,11 +26,14 @@ const BULLET_SIZE = 10;
 const INITIAL_ENEMY_COUNT = 3;
 
 const StackShipsBattle = () => {
+  const navigation = useNavigation();
   const { totalScore, updateTotalScore } = useAppContextProvider();
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [enemyCount, setEnemyCount] = useState(INITIAL_ENEMY_COUNT);
   const [shootCount, setShootCount] = useState(3);
+  const [useGameScore, setUseGameScore] = useState(false);
+  const [finalTotalScore, setFinalTotalScore] = useState(totalScore);
   const playerShip = useRef(
     new Animated.ValueXY({
       x: SCREEN_WIDTH / 2 - SHIP_SIZE / 2,
@@ -51,6 +56,19 @@ const StackShipsBattle = () => {
   const [bullets, setBullets] = useState([]);
   const shotSoundEffect = useRef(null);
   const explosionSoundEffect = useRef(null);
+
+  const updateScore = useCallback((points) => {
+    setScore(prevScore => prevScore + points);
+  }, []);
+
+  const handleGameCompletion = useCallback(() => {
+    if (!gameOver) {
+      const newTotalScore = totalScore + score;
+      setGameOver(true);
+      setFinalTotalScore(newTotalScore);
+      updateTotalScore(newTotalScore);
+    }
+  }, [totalScore, score, updateTotalScore, gameOver]);
 
   useEffect(() => {
     // Load the sound files
@@ -167,12 +185,34 @@ const StackShipsBattle = () => {
   };
 
   const buyShot = () => {
-    if (totalScore >= 10) {
-      updateTotalScore(totalScore - 10);
+    const currentScore = useGameScore ? score : totalScore;
+    if (currentScore >= 10) {
+      if (useGameScore) {
+        setScore(prevScore => prevScore - 10);
+      } else {
+        updateTotalScore(totalScore - 10);
+      }
       setShootCount(prevCount => prevCount + 1);
     } else {
-      Alert.alert("Not enough score", "You need 10 points to buy a shot.");
+      Alert.alert("Not enough score", `You need 10 points in your ${useGameScore ? 'game' : 'total'} score to buy a shot.`);
     }
+  };
+
+  const exitGame = () => {
+    Alert.alert(
+      "Exit Game",
+      "Are you sure you want to exit? Your current game progress will be lost.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Exit", 
+          onPress: () => {
+            updateTotalScore(totalScore + score);
+            navigation.goBack();
+          }
+        }
+      ]
+    );
   };
 
   useEffect(() => {
@@ -190,7 +230,7 @@ const StackShipsBattle = () => {
               Math.abs(bullet.x._value - ship.position.x._value) < SHIP_SIZE &&
               Math.abs(bullet.y._value - ship.position.y._value) < SHIP_SIZE
             ) {
-              setScore((prevScore) => prevScore + 5);
+              updateScore(5);
               setEnemyCount((prevCount) => prevCount - 1);
               setEnemyShips((prevShips) =>
                 prevShips.map((s, i) =>
@@ -220,8 +260,7 @@ const StackShipsBattle = () => {
       });
 
       if (enemyCount === 0) {
-        setGameOver(true);
-        updateTotalScore(totalScore + score);
+        handleGameCompletion();
         clearInterval(interval);
       }
 
@@ -231,14 +270,14 @@ const StackShipsBattle = () => {
           Math.abs(ship.position.x._value - playerShip.x._value) < SHIP_SIZE &&
           Math.abs(ship.position.y._value - playerShip.y._value) < SHIP_SIZE
         ) {
-          setGameOver(true);
+          handleGameCompletion();
           clearInterval(interval);
         }
       });
     }, 16);
 
     return () => clearInterval(interval);
-  }, [enemyCount, totalScore, score]);
+  }, [enemyCount, updateScore, handleGameCompletion]);
 
   if (gameOver) {
     return (
@@ -247,7 +286,10 @@ const StackShipsBattle = () => {
           {enemyCount === 0 ? 'You Win!' : 'Game Over'}
         </Text>
         <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.totalScoreText}>Total Score: {totalScore}</Text>
+        <Text style={styles.totalScoreText}>Total Score: {finalTotalScore}</Text>
+        <TouchableOpacity style={styles.exitButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.exitButtonText}>Exit Game</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -258,7 +300,7 @@ const StackShipsBattle = () => {
         source={require('../../assets/image/bg/battleMap.png')}
         style={styles.backgroundImage}
       >
-        <Text style={styles.scoreText}>Score: {score}</Text>
+        <Text style={styles.scoreText}>Game Score: {score}</Text>
         <Text style={styles.shootCountText}>Shots left: {shootCount}</Text>
         <Text style={styles.totalScoreText}>Total Score: {totalScore}</Text>
         {enemyShips.map(
@@ -293,8 +335,20 @@ const StackShipsBattle = () => {
         <TouchableOpacity style={styles.shootButton} onPress={shoot}>
           <Text style={styles.shootButtonText}>Shoot</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buyButton} onPress={buyShot}>
-          <Text style={styles.buyButtonText}>Buy Shot (10 pts)</Text>
+        <View style={styles.buyButtonContainer}>
+          <TouchableOpacity style={styles.buyButton} onPress={buyShot}>
+            <Text style={styles.buyButtonText}>Buy Shot (10 pts)</Text>
+          </TouchableOpacity>
+          <View style={styles.toggleContainer}>
+            <Text style={styles.toggleText}>Use Game Score</Text>
+            <Switch
+              value={useGameScore}
+              onValueChange={setUseGameScore}
+            />
+          </View>
+        </View>
+        <TouchableOpacity style={styles.exitButton} onPress={exitGame}>
+          <Text style={styles.exitButtonText}>Exit Game</Text>
         </TouchableOpacity>
       </ImageBackground>
     </View>
@@ -399,5 +453,33 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     zIndex: 1000,
+  },
+  buyButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  toggleText: {
+    color: 'white',
+    marginRight: 10,
+  },
+  exitButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+  },
+  exitButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
