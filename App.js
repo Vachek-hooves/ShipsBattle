@@ -12,7 +12,13 @@ import {
   TabShipsBattle,
   TabStatistickScreen,
 } from './screen/Tab';
-import { StackQuizScreen, StackShipsBattle } from './screen/Stack';
+import {
+  StackAdmiralScreen,
+  StackBattleDetail,
+  StackBattleScreen,
+  StackQuizScreen,
+  StackShipsBattle,
+} from './screen/Stack';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,7 +47,7 @@ const TabNavigator = () => {
           } else if (route.name === 'TabShipsBattle') {
             iconSource = require('./assets/icons/game-controller.png');
           } else if (route.name === 'TabStatistickScreen') {
-            iconSource = require('./assets/icons/stats-chart.png');
+            iconSource = require('./assets/icons/history.png');
           }
 
           return (
@@ -49,7 +55,7 @@ const TabNavigator = () => {
               source={iconSource}
               style={[
                 styles.tabIcon,
-                { tintColor: focused ? '#4ECDC4' : '#95A5A6' }
+                { tintColor: focused ? '#4ECDC4' : '#95A5A6' },
               ]}
               resizeMode="contain"
             />
@@ -61,25 +67,25 @@ const TabNavigator = () => {
         tabBarItemStyle: styles.tabBarItem,
       })}
     >
-      <Tab.Screen 
-        name="TabQuizScreen" 
+      <Tab.Screen
+        name="TabQuizScreen"
         component={TabQuizScreen}
         options={{ tabBarLabel: 'Quiz' }}
       />
-      <Tab.Screen 
-        name="TabHarborScreen" 
+      <Tab.Screen
+        name="TabHarborScreen"
         component={TabHarborScreen}
         options={{ tabBarLabel: 'Harbor' }}
       />
-      <Tab.Screen 
-        name="TabShipsBattle" 
+      <Tab.Screen
+        name="TabShipsBattle"
         component={TabShipsBattle}
         options={{ tabBarLabel: 'Battle' }}
       />
-      <Tab.Screen 
-        name="TabStatistickScreen" 
+      <Tab.Screen
+        name="TabStatistickScreen"
         component={TabStatistickScreen}
-        options={{ tabBarLabel: 'Stats' }}
+        options={{ tabBarLabel: 'History' }}
       />
     </Tab.Navigator>
   );
@@ -100,6 +106,15 @@ function App() {
           <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
           <Stack.Screen name="StackQuizScreen" component={StackQuizScreen} />
           <Stack.Screen name="StackShipsBattle" component={StackShipsBattle} />
+          <Stack.Screen
+            name="StackAdmiralScreen"
+            component={StackAdmiralScreen}
+          />
+          <Stack.Screen
+            name="StackBattleDetail"
+            component={StackBattleDetail}
+          />
+          <Stack.Screen name='StackBattleScreen' component={StackBattleScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </AppContextProvider>
