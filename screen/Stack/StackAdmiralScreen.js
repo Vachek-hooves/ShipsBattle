@@ -91,6 +91,20 @@ export default function StackAdmiralScreen() {
                 </View>
               </View>
             </View>
+
+            <TouchableOpacity 
+              style={styles.returnButton}
+              onPress={() => navigation.goBack()}
+            >
+              <LinearGradient
+                colors={['#4ECDC4', '#45b1a8']}
+                style={styles.returnButtonGradient}
+              >
+                <Text style={styles.returnButtonText}>
+                  Return to Admirals List
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </LinearGradient>
         </View>
       </ScrollView>
@@ -222,6 +236,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   battleButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+  },
+  returnButton: {
+    marginTop: 30,
+    marginBottom: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  returnButtonGradient: {
+    padding: 15,
+    alignItems: 'center',
+  },
+  returnButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
