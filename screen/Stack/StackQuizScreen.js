@@ -20,6 +20,8 @@ const StackQuizScreen = ({ route, navigation }) => {
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
 
   useEffect(() => {
     navigation.setOptions({ title: quizLevel?.quizName || 'Quiz' });
@@ -29,17 +31,26 @@ const StackQuizScreen = ({ route, navigation }) => {
     }
   }, [quizLevel]);
 
-  const handleAnswer = (selectedAnswer) => {
+  const handleAnswer = (selectedOption) => {
+    setSelectedAnswer(selectedOption);
     const currentQuestion = quizLevel.questions[currentQuestionIndex];
-    if (selectedAnswer === currentQuestion.correctAnswer) {
-      setScore(prevScore => prevScore + 1);
-    }
+    const correct = selectedOption === currentQuestion.correctAnswer;
+    setIsCorrect(correct);
 
-    if (currentQuestionIndex + 1 < quizLevel.questions.length) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      handleQuizCompletion();
-    }
+    // Add delay before moving to next question
+    setTimeout(() => {
+      if (correct) {
+        setScore(prevScore => prevScore + 1);
+      }
+
+      if (currentQuestionIndex + 1 < quizLevel.questions.length) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setSelectedAnswer(null);
+        setIsCorrect(null);
+      } else {
+        handleQuizCompletion();
+      }
+    }, 1000); // 1 second delay to show feedback
   };
 
   const handleQuizCompletion = () => {
@@ -137,6 +148,9 @@ const StackQuizScreen = ({ route, navigation }) => {
               key={index}
               option={option}
               onPress={() => handleAnswer(option)}
+              selected={selectedAnswer === option}
+              correct={isCorrect !== null && option === currentQuestion.correctAnswer}
+              disabled={selectedAnswer !== null}
             />
           ))}
         </ScrollView>
@@ -246,21 +260,40 @@ const styles = StyleSheet.create({
   },
 });
 
-const OptionButton = ({ option, onPress }) => (
-  <TouchableOpacity 
-    style={optionButtonStyles.optionButtonContainer} 
-    onPress={onPress}
-  >
-    <LinearGradient
-      colors={['rgba(26, 26, 26, 0.9)', 'rgba(51, 51, 51, 0.9)']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      style={optionButtonStyles.optionButton}
+const OptionButton = ({ option, onPress, selected, correct, disabled }) => {
+  let gradientColors = ['rgba(26, 26, 26, 0.9)', 'rgba(51, 51, 51, 0.9)']; // default
+  
+  if (selected) {
+    gradientColors = correct 
+      ? ['#004d00', '#006400'] // green gradient for correct
+      : ['#8B0000', '#B22222']; // red gradient for incorrect
+  }
+
+  return (
+    <TouchableOpacity 
+      style={optionButtonStyles.optionButtonContainer} 
+      onPress={onPress}
+      disabled={disabled} // Use the passed disabled prop
     >
-      <Text style={optionButtonStyles.optionText}>{option}</Text>
-    </LinearGradient>
-  </TouchableOpacity>
-);
+      <LinearGradient
+        colors={gradientColors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[
+          optionButtonStyles.optionButton,
+          selected && (correct 
+            ? optionButtonStyles.correctOption 
+            : optionButtonStyles.incorrectOption)
+        ]}
+      >
+        <Text style={optionButtonStyles.optionText}>
+          {option}
+          {selected && (correct ? ' ✓' : ' ✗')}
+        </Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+};
 
 const optionButtonStyles = StyleSheet.create({
   optionButtonContainer: {
@@ -283,6 +316,30 @@ const optionButtonStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DAA520',
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  correctOption: {
+    borderColor: '#00FF00',
+    borderWidth: 2,
+    shadowColor: '#00FF00',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  incorrectOption: {
+    borderColor: '#FF0000',
+    borderWidth: 2,
+    shadowColor: '#FF0000',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
   },
   optionText: {
     color: '#ffffff',
