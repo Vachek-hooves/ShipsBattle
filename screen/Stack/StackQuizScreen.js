@@ -69,6 +69,8 @@ const StackQuizScreen = ({ route, navigation }) => {
     setCurrentQuestionIndex(0);
     setScore(0);
     setShowResult(false);
+    setSelectedAnswer(null); // Reset selected answer
+    setIsCorrect(null);     // Reset correct/incorrect state
   };
 
   const finishQuiz = () => {
