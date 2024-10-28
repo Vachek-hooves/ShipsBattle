@@ -15,6 +15,7 @@ import {
 import Sound from 'react-native-sound';
 import { useAppContextProvider } from '../../store/context';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
@@ -38,7 +39,7 @@ const StackShipsBattle = () => {
   const playerShipPosition = useRef(
     new Animated.ValueXY({
       x: SCREEN_WIDTH / 2 - SHIP_SIZE / 2,
-      y: SCREEN_HEIGHT - SHIP_SIZE * 2,
+      y: SCREEN_HEIGHT - SHIP_SIZE * 4, // Adjust this multiplier to move ship up/down
     })
   ).current;
   const [enemyShips, setEnemyShips] = useState(
@@ -58,6 +59,7 @@ const StackShipsBattle = () => {
   const [bullets, setBullets] = useState([]);
   const shotSoundEffect = useRef(null);
   const explosionSoundEffect = useRef(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const updateScore = useCallback((points) => {
     setScore(prevScore => prevScore + points);
@@ -292,6 +294,10 @@ const StackShipsBattle = () => {
     return () => clearInterval(interval);
   }, [enemyCount, updateScore, handleGameCompletion]);
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   if (gameOver) {
     return (
       <View style={styles.container}>
@@ -313,17 +319,56 @@ const StackShipsBattle = () => {
         source={require('../../assets/image/bg/battleMap.png')}
         style={styles.backgroundImage}
       >
-        {/* Game Info Section */}
+        {/* Game Info - Keep only essential info visible */}
         <View style={styles.gameInfoContainer}>
           <Text style={styles.levelText}>Level: {level}</Text>
-          <Text style={styles.scoreText}>Game Score: {score}</Text>
-          <Text style={styles.shootCountText}>Shots left: {shootCount}</Text>
-          <Text style={styles.totalScoreText}>Total Score: {totalScore}</Text>
+          <Text style={styles.shootCountText}>Shots: {shootCount}</Text>
         </View>
 
-        {/* Exit Button */}
-        <TouchableOpacity style={styles.exitButton} onPress={exitGame}>
-          <Text style={styles.exitButtonText}>Exit Game</Text>
+        {/* Menu Toggle Button */}
+        <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
+          <LinearGradient
+            colors={['#4a0080', '#2d004d']}
+            style={styles.menuButtonGradient}
+          >
+            <Text style={styles.menuButtonText}>{isMenuOpen ? '×' : '☰'}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Collapsible Menu */}
+        {isMenuOpen && (
+          <View style={styles.menuContainer}>
+            <TouchableOpacity style={styles.menuItem} onPress={convertScoreToShots}>
+              <Text style={styles.menuItemText}>Convert Score</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.menuItem} onPress={buyShot}>
+              <Text style={styles.menuItemText}>Buy Shot</Text>
+            </TouchableOpacity>
+            
+            <View style={styles.menuItem}>
+              <Text style={styles.menuItemText}>Use Score</Text>
+              <Switch 
+                value={useGameScore} 
+                onValueChange={setUseGameScore}
+                style={styles.switch}
+              />
+            </View>
+
+            <TouchableOpacity style={[styles.menuItem, styles.exitMenuItem]} onPress={exitGame}>
+              <Text style={styles.menuItemText}>Exit Game</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Shoot Button */}
+        <TouchableOpacity style={styles.shootButton} onPress={shoot}>
+          <LinearGradient
+            colors={['#006400', '#004d00']}
+            style={styles.shootButtonGradient}
+          >
+            <Text style={styles.shootButtonText}>Shoot</Text>
+          </LinearGradient>
         </TouchableOpacity>
 
         {/* Game Elements */}
@@ -340,28 +385,6 @@ const StackShipsBattle = () => {
         <Animated.View {...panResponder.panHandlers} style={[styles.playerShip, playerShipPosition.getLayout()]}>
           <Image source={playerShip} style={styles.playerShipImage} />
         </Animated.View>
-
-        {/* Control Buttons Container */}
-        <View style={styles.controlsContainer}>
-          {/* Left Side Controls */}
-          <View style={styles.leftControls}>
-            <TouchableOpacity style={styles.convertButton} onPress={convertScoreToShots}>
-              <Text style={styles.convertButtonText}>Convert Score to Shots</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.buyButton} onPress={buyShot}>
-              <Text style={styles.buyButtonText}>Buy Shot (10 pts)</Text>
-            </TouchableOpacity>
-            <View style={styles.toggleContainer}>
-              <Text style={styles.toggleText}>Use Game Score</Text>
-              <Switch value={useGameScore} onValueChange={setUseGameScore} />
-            </View>
-          </View>
-
-          {/* Shoot Button */}
-          <TouchableOpacity style={styles.shootButton} onPress={shoot}>
-            <Text style={styles.shootButtonText}>Shoot</Text>
-          </TouchableOpacity>
-        </View>
       </ImageBackground>
     </View>
   );
@@ -379,17 +402,11 @@ const styles = StyleSheet.create({
   },
   gameInfoContainer: {
     position: 'absolute',
-    top: 60,
+    top: 40,
     left: 20,
     zIndex: 1,
   },
   levelText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 5,
-  },
-  scoreText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
@@ -408,7 +425,7 @@ const styles = StyleSheet.create({
   },
   exitButton: {
     position: 'absolute',
-    top: 60,
+    top: 40,
     right: 20,
     backgroundColor: 'red',
     padding: 10,
@@ -419,63 +436,69 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  controlsContainer: {
+  menuButton: {
     position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
+    top: 40,
+    right: 20,
+    zIndex: 2,
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  menuButtonGradient: {
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: 100,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 10,
+    padding: 10,
+    zIndex: 2,
+    minWidth: 150,
+  },
+  menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  leftControls: {
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  convertButton: {
-    backgroundColor: '#4a0080',
-    padding: 10,
-    borderRadius: 5,
-    width: 180,
-  },
-  convertButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  buyButton: {
-    backgroundColor: 'orange',
-    padding: 10,
-    borderRadius: 5,
-    width: 180,
-  },
-  buyButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  toggleContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 5,
-    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
-  toggleText: {
-    color: 'white',
-    marginRight: 10,
+  menuItemText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  exitMenuItem: {
+    borderBottomWidth: 0,
+    marginTop: 5,
   },
   shootButton: {
-    backgroundColor: 'green',
-    padding: 15,
-    borderRadius: 5,
-    width: 80,
-    height: 80,
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    borderRadius: 35,
+    overflow: 'hidden',
+  },
+  shootButtonGradient: {
+    width: 70,
+    height: 70,
     justifyContent: 'center',
     alignItems: 'center',
   },
   shootButtonText: {
-    color: 'white',
+    color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   enemyShipImage: {
@@ -483,17 +506,17 @@ const styles = StyleSheet.create({
     height: SHIP_SIZE + 50,
   },
   playerShip: {
-    width: SHIP_SIZE,
-    height: SHIP_SIZE,
-    backgroundColor: 'blue',
+    width: SHIP_SIZE + 50, // Increased to match image size
+    height: SHIP_SIZE + 50, // Increased to match image size
+    position: 'absolute',
+    bottom: 160, // Adjust this value to move ship up/down
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 60,
   },
   playerShipImage: {
     width: SHIP_SIZE + 50,
     height: SHIP_SIZE + 50,
+    resizeMode: 'contain',
   },
   enemyShip: {
     width: SHIP_SIZE,
@@ -515,5 +538,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: SCREEN_HEIGHT / 3,
+  },
+  switch: {
+    transform: [{ scale: 0.8 }],
+    marginLeft: 10,
   },
 });
