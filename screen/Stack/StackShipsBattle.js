@@ -300,16 +300,38 @@ const StackShipsBattle = () => {
 
   if (gameOver) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.gameOverText}>
-          {enemyCount === 0 ? 'You Win!' : 'Game Over'}
-        </Text>
-        <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.totalScoreText}>Total Score: {finalTotalScore}</Text>
-        <TouchableOpacity style={styles.exitButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.exitButtonText}>Exit Game</Text>
-        </TouchableOpacity>
-      </View>
+      <ImageBackground
+        source={require('../../assets/image/bg/battleMap.png')}
+        style={styles.container}
+      >
+        <LinearGradient
+          colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']}
+          style={styles.gameOverContainer}
+        >
+          <View style={styles.gameOverContent}>
+            <Text style={styles.gameOverTitle}>
+              {enemyCount === 0 ? '🏆 Victory!' : '💀 Game Over'}
+            </Text>
+            
+            <View style={styles.scoreContainer}>
+              <Text style={styles.gameOverText}>Game Score: {score}</Text>
+              <Text style={styles.gameOverText}>Total Score: {finalTotalScore}</Text>
+            </View>
+
+            <TouchableOpacity 
+              style={styles.returnButton} 
+              onPress={() => navigation.goBack()}
+            >
+              <LinearGradient
+                colors={['#4a0080', '#2d004d']}
+                style={styles.returnButtonGradient}
+              >
+                <Text style={styles.returnButtonText}>Return to Menu</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </ImageBackground>
     );
   }
 
@@ -395,6 +417,7 @@ export default StackShipsBattle;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    
   },
   backgroundImage: {
     flex: 1,
@@ -533,11 +556,67 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: BULLET_SIZE / 2,
   },
-  gameOverText: {
-    fontSize: 32,
+  gameOverContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  gameOverContent: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 15,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#DAA520',
+  },
+  gameOverTitle: {
+    fontSize: 42,
     fontWeight: 'bold',
+    color: '#DAA520',
+    marginBottom: 30,
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+  },
+  scoreContainer: {
+    width: '100%',
+    marginBottom: 30,
+  },
+  gameOverText: {
+    fontSize: 24,
+    color: '#fff',
     textAlign: 'center',
-    marginTop: SCREEN_HEIGHT / 3,
+    marginVertical: 5,
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+  },
+  returnButton: {
+    width: '80%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  returnButtonGradient: {
+    padding: 15,
+    alignItems: 'center',
+  },
+  returnButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
   switch: {
     transform: [{ scale: 0.8 }],
