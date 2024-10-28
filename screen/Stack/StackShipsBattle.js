@@ -174,7 +174,7 @@ const StackShipsBattle = () => {
 
       Animated.timing(newBullet.y, {
         toValue: -BULLET_SIZE,
-        duration: 1000,
+        duration: 1500,
         useNativeDriver: false,
       }).start(() => {
         setBullets((prevBullets) =>
@@ -313,60 +313,55 @@ const StackShipsBattle = () => {
         source={require('../../assets/image/bg/battleMap.png')}
         style={styles.backgroundImage}
       >
-        <Text style={styles.levelText}>Level: {level}</Text>
-        <Text style={styles.scoreText}>Game Score: {score}</Text>
-        <Text style={styles.shootCountText}>Shots left: {shootCount}</Text>
-        <Text style={styles.totalScoreText}>Total Score: {totalScore}</Text>
-        {enemyShips.map(
-          (ship, index) =>
-            ship.isAlive && (
-              <Animated.View
-                key={index}
-                style={[styles.enemyShip, ship.position.getLayout()]}
-              >
-                <Image
-                  source={ship.image}
-                  style={styles.enemyShipImage}
-                />
-              </Animated.View>
-            )
-        )}
-        {bullets.map((bullet, index) => (
-          <Animated.View
-            key={index}
-            style={[styles.bullet, bullet.getLayout()]}
-          />
-        ))}
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={[styles.playerShip, playerShipPosition.getLayout()]}
-        >
-          <Image
-            source={playerShip}
-            style={styles.playerShipImage}
-          />
-        </Animated.View>
-        <TouchableOpacity style={styles.shootButton} onPress={shoot}>
-          <Text style={styles.shootButtonText}>Shoot</Text>
-        </TouchableOpacity>
-        <View style={styles.buyButtonContainer}>
-          <TouchableOpacity style={styles.buyButton} onPress={buyShot}>
-            <Text style={styles.buyButtonText}>Buy Shot (10 pts)</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.convertButton} onPress={convertScoreToShots}>
-            <Text style={styles.convertButtonText}>Convert Score to Shots</Text>
-          </TouchableOpacity>
-          <View style={styles.toggleContainer}>
-            <Text style={styles.toggleText}>Use Game Score</Text>
-            <Switch
-              value={useGameScore}
-              onValueChange={setUseGameScore}
-            />
-          </View>
+        {/* Game Info Section */}
+        <View style={styles.gameInfoContainer}>
+          <Text style={styles.levelText}>Level: {level}</Text>
+          <Text style={styles.scoreText}>Game Score: {score}</Text>
+          <Text style={styles.shootCountText}>Shots left: {shootCount}</Text>
+          <Text style={styles.totalScoreText}>Total Score: {totalScore}</Text>
         </View>
+
+        {/* Exit Button */}
         <TouchableOpacity style={styles.exitButton} onPress={exitGame}>
           <Text style={styles.exitButtonText}>Exit Game</Text>
         </TouchableOpacity>
+
+        {/* Game Elements */}
+        {enemyShips.map((ship, index) =>
+          ship.isAlive && (
+            <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]}>
+              <Image source={ship.image} style={styles.enemyShipImage} />
+            </Animated.View>
+          )
+        )}
+        {bullets.map((bullet, index) => (
+          <Animated.View key={index} style={[styles.bullet, bullet.getLayout()]} />
+        ))}
+        <Animated.View {...panResponder.panHandlers} style={[styles.playerShip, playerShipPosition.getLayout()]}>
+          <Image source={playerShip} style={styles.playerShipImage} />
+        </Animated.View>
+
+        {/* Control Buttons Container */}
+        <View style={styles.controlsContainer}>
+          {/* Left Side Controls */}
+          <View style={styles.leftControls}>
+            <TouchableOpacity style={styles.convertButton} onPress={convertScoreToShots}>
+              <Text style={styles.convertButtonText}>Convert Score to Shots</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.buyButton} onPress={buyShot}>
+              <Text style={styles.buyButtonText}>Buy Shot (10 pts)</Text>
+            </TouchableOpacity>
+            <View style={styles.toggleContainer}>
+              <Text style={styles.toggleText}>Use Game Score</Text>
+              <Switch value={useGameScore} onValueChange={setUseGameScore} />
+            </View>
+          </View>
+
+          {/* Shoot Button */}
+          <TouchableOpacity style={styles.shootButton} onPress={shoot}>
+            <Text style={styles.shootButtonText}>Shoot</Text>
+          </TouchableOpacity>
+        </View>
       </ImageBackground>
     </View>
   );
@@ -376,17 +371,112 @@ export default StackShipsBattle;
 
 const styles = StyleSheet.create({
   container: {
-    // paddingTop: 60,
     flex: 1,
-    backgroundColor: '#87CEEB',
-    // paddingHorizontal: 20,
   },
   backgroundImage: {
     flex: 1,
     resizeMode: 'cover',
-    // justifyContent: 'center',
+  },
+  gameInfoContainer: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    zIndex: 1,
+  },
+  levelText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  scoreText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  shootCountText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  totalScoreText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  exitButton: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    zIndex: 1,
+  },
+  exitButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  controlsContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  leftControls: {
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  convertButton: {
+    backgroundColor: '#4a0080',
+    padding: 10,
+    borderRadius: 5,
+    width: 180,
+  },
+  convertButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  buyButton: {
+    backgroundColor: 'orange',
+    padding: 10,
+    borderRadius: 5,
+    width: 180,
+  },
+  buyButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 60,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 5,
+    borderRadius: 5,
+  },
+  toggleText: {
+    color: 'white',
+    marginRight: 10,
+  },
+  shootButton: {
+    backgroundColor: 'green',
+    padding: 15,
+    borderRadius: 5,
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  shootButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   enemyShipImage: {
     width: SHIP_SIZE + 50,
@@ -420,100 +510,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: BULLET_SIZE / 2,
   },
-  shootButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 5,
-  },
-  shootButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  scoreText: {
-    // position: 'absolute',
-    // top: 20,
-    // left: 20,
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    zIndex: 1000,
-  },
   gameOverText: {
     fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: SCREEN_HEIGHT / 3,
-  },
-  buyButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    backgroundColor: 'orange',
-    padding: 10,
-    borderRadius: 5,
-  },
-  buyButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  shootCountText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    zIndex: 1000,
-  },
-  totalScoreText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    zIndex: 1000,
-  },
-  buyButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  toggleText: {
-    color: 'white',
-    marginRight: 10,
-  },
-  exitButton: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    backgroundColor: 'red',
-    padding: 10,
-    borderRadius: 5,
-  },
-  exitButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  convertButton: {
-    backgroundColor: 'purple',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  convertButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  levelText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginTop: 10,
   },
 });
