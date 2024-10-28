@@ -184,7 +184,44 @@ const StackShipsBattle = () => {
         );
       });
     } else {
-      Alert.alert("No more shots", "Buy more shots or end the game.");
+      // Check if user can get more shots
+      const currentScore = useGameScore ? score : totalScore;
+      const canBuyShots = currentScore >= 10;
+      const canConvertScore = score >= 10;
+
+      if (!canBuyShots && !canConvertScore) {
+        Alert.alert(
+          "Game Over",
+          "No more shots available and insufficient score to buy or convert.",
+          [
+            {
+              text: "OK",
+              onPress: () => handleGameCompletion()
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          "No shots left",
+          "Would you like to buy more shots or convert your score?",
+          [
+            {
+              text: "Buy Shot",
+              onPress: buyShot,
+              disabled: !canBuyShots
+            },
+            {
+              text: "Convert Score",
+              onPress: convertScoreToShots,
+              disabled: !canConvertScore
+            },
+            {
+              text: "Cancel",
+              style: "cancel"
+            }
+          ]
+        );
+      }
     }
   };
 
@@ -298,6 +335,23 @@ const StackShipsBattle = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  // Add this function to check if the game is lost
+  const checkGameOver = useCallback(() => {
+    // Check if user has no shots left and can't get more
+    const currentScore = useGameScore ? score : totalScore;
+    const canBuyShots = currentScore >= 10;
+    const canConvertScore = score >= 10;
+
+    if (shootCount === 0 && !canBuyShots && !canConvertScore) {
+      handleGameCompletion();
+    }
+  }, [shootCount, score, totalScore, useGameScore]);
+
+  // Add this to useEffect to check after each shot
+  useEffect(() => {
+    checkGameOver();
+  }, [shootCount, score, totalScore]);
+
   if (gameOver) {
     return (
       <ImageBackground
@@ -316,6 +370,11 @@ const StackShipsBattle = () => {
             <View style={styles.scoreContainer}>
               <Text style={styles.gameOverText}>Game Score: {score}</Text>
               <Text style={styles.gameOverText}>Total Score: {finalTotalScore}</Text>
+              {enemyCount > 0 && (
+                <Text style={styles.gameOverReason}>
+                  No more shots available and insufficient score to continue
+                </Text>
+              )}
             </View>
 
             <TouchableOpacity 
@@ -621,5 +680,15 @@ const styles = StyleSheet.create({
   switch: {
     transform: [{ scale: 0.8 }],
     marginLeft: 10,
+  },
+  gameOverReason: {
+    fontSize: 16,
+    color: '#DAA520',
+    textAlign: 'center',
+    marginTop: 10,
+    fontStyle: 'italic',
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
 });
