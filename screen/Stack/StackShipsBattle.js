@@ -39,7 +39,7 @@ const StackShipsBattle = () => {
   const playerShipPosition = useRef(
     new Animated.ValueXY({
       x: SCREEN_WIDTH / 2 - SHIP_SIZE / 2,
-      y: SCREEN_HEIGHT - SHIP_SIZE * 4, // Adjust this multiplier to move ship up/down
+      y: SCREEN_HEIGHT - SHIP_SIZE * 3, // Adjust this multiplier to move ship up/down
     })
   ).current;
   const [enemyShips, setEnemyShips] = useState(
