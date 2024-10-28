@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   enemyShip: {
     width: SHIP_SIZE,
     height: SHIP_SIZE,
-    backgroundColor: 'red',
+    // backgroundColor: 'red',
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
