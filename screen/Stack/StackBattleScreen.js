@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
+
 const { width } = Dimensions.get('window');
 const imageHeight = width * 0.75;
 
@@ -21,9 +22,23 @@ const StackBattleScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-     
+      {/* Back Button - Always visible at the top */}
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <LinearGradient
+          colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.6)']}
+          style={styles.backButtonGradient}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </LinearGradient>
+      </TouchableOpacity>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Image
           source={battle.image}
           style={styles.battleImage}
@@ -43,6 +58,7 @@ const StackBattleScreen = () => {
 
             <Text style={styles.description}>{battle.description}</Text>
 
+            {/* Return Button - At the bottom of content */}
             <TouchableOpacity 
               style={styles.returnButton}
               onPress={() => navigation.goBack()}
@@ -70,7 +86,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    // flex: 1,
     backgroundColor: '#000',
   },
   battleImage: {
@@ -78,7 +93,7 @@ const styles = StyleSheet.create({
     height: imageHeight + 120,
   },
   contentContainer: {
-    marginTop: -10,
+    marginTop: -20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',
@@ -87,6 +102,7 @@ const styles = StyleSheet.create({
     padding: 20,
     minHeight: 400,
   },
+  // Battle info styles
   battleName: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -118,7 +134,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     lineHeight: 24,
     textAlign: 'justify',
+    marginBottom: 20, // Added margin to separate from return button
   },
+  // Back button styles - Top left corner
   backButton: {
     position: 'absolute',
     top: 50,
@@ -142,8 +160,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 25,
   },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  // Return button styles - Bottom of content
   returnButton: {
-    marginTop: 30,
+    marginTop: 20,
     marginBottom: 10,
     borderRadius: 10,
     overflow: 'hidden',

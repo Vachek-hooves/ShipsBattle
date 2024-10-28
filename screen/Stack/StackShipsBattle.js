@@ -15,6 +15,7 @@ import {
 import Sound from 'react-native-sound';
 import { useAppContextProvider } from '../../store/context';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
 // Enable playback in silence mode
 Sound.setCategory('Playback');
@@ -38,7 +39,7 @@ const StackShipsBattle = () => {
   const playerShipPosition = useRef(
     new Animated.ValueXY({
       x: SCREEN_WIDTH / 2 - SHIP_SIZE / 2,
-      y: SCREEN_HEIGHT - SHIP_SIZE * 2,
+      y: SCREEN_HEIGHT - SHIP_SIZE * 3, // Adjust this multiplier to move ship up/down
     })
   ).current;
   const [enemyShips, setEnemyShips] = useState(
@@ -58,6 +59,7 @@ const StackShipsBattle = () => {
   const [bullets, setBullets] = useState([]);
   const shotSoundEffect = useRef(null);
   const explosionSoundEffect = useRef(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const updateScore = useCallback((points) => {
     setScore(prevScore => prevScore + points);
@@ -174,7 +176,7 @@ const StackShipsBattle = () => {
 
       Animated.timing(newBullet.y, {
         toValue: -BULLET_SIZE,
-        duration: 1000,
+        duration: 1500,
         useNativeDriver: false,
       }).start(() => {
         setBullets((prevBullets) =>
@@ -182,7 +184,44 @@ const StackShipsBattle = () => {
         );
       });
     } else {
-      Alert.alert("No more shots", "Buy more shots or end the game.");
+      // Check if user can get more shots
+      const currentScore = useGameScore ? score : totalScore;
+      const canBuyShots = currentScore >= 10;
+      const canConvertScore = score >= 10;
+
+      if (!canBuyShots && !canConvertScore) {
+        Alert.alert(
+          "Game Over",
+          "No more shots available and insufficient score to buy or convert.",
+          [
+            {
+              text: "OK",
+              onPress: () => handleGameCompletion()
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          "No shots left",
+          "Would you like to buy more shots or convert your score?",
+          [
+            {
+              text: "Buy Shot",
+              onPress: buyShot,
+              disabled: !canBuyShots
+            },
+            {
+              text: "Convert Score",
+              onPress: convertScoreToShots,
+              disabled: !canConvertScore
+            },
+            {
+              text: "Cancel",
+              style: "cancel"
+            }
+          ]
+        );
+      }
     }
   };
 
@@ -292,18 +331,66 @@ const StackShipsBattle = () => {
     return () => clearInterval(interval);
   }, [enemyCount, updateScore, handleGameCompletion]);
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  // Add this function to check if the game is lost
+  const checkGameOver = useCallback(() => {
+    // Check if user has no shots left and can't get more
+    const currentScore = useGameScore ? score : totalScore;
+    const canBuyShots = currentScore >= 10;
+    const canConvertScore = score >= 10;
+
+    if (shootCount === 0 && !canBuyShots && !canConvertScore) {
+      handleGameCompletion();
+    }
+  }, [shootCount, score, totalScore, useGameScore]);
+
+  // Add this to useEffect to check after each shot
+  useEffect(() => {
+    checkGameOver();
+  }, [shootCount, score, totalScore]);
+
   if (gameOver) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.gameOverText}>
-          {enemyCount === 0 ? 'You Win!' : 'Game Over'}
-        </Text>
-        <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.totalScoreText}>Total Score: {finalTotalScore}</Text>
-        <TouchableOpacity style={styles.exitButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.exitButtonText}>Exit Game</Text>
-        </TouchableOpacity>
-      </View>
+      <ImageBackground
+        source={require('../../assets/image/bg/battleMap.png')}
+        style={styles.container}
+      >
+        <LinearGradient
+          colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']}
+          style={styles.gameOverContainer}
+        >
+          <View style={styles.gameOverContent}>
+            <Text style={styles.gameOverTitle}>
+              {enemyCount === 0 ? '🏆 Victory!' : '💀 Game Over'}
+            </Text>
+            
+            <View style={styles.scoreContainer}>
+              <Text style={styles.gameOverText}>Game Score: {score}</Text>
+              <Text style={styles.gameOverText}>Total Score: {finalTotalScore}</Text>
+              {enemyCount > 0 && (
+                <Text style={styles.gameOverReason}>
+                  No more shots available and insufficient score to continue
+                </Text>
+              )}
+            </View>
+
+            <TouchableOpacity 
+              style={styles.returnButton} 
+              onPress={() => navigation.goBack()}
+            >
+              <LinearGradient
+                colors={['#4a0080', '#2d004d']}
+                style={styles.returnButtonGradient}
+              >
+                <Text style={styles.returnButtonText}>Return to Menu</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </ImageBackground>
     );
   }
 
@@ -313,60 +400,72 @@ const StackShipsBattle = () => {
         source={require('../../assets/image/bg/battleMap.png')}
         style={styles.backgroundImage}
       >
-        <Text style={styles.levelText}>Level: {level}</Text>
-        <Text style={styles.scoreText}>Game Score: {score}</Text>
-        <Text style={styles.shootCountText}>Shots left: {shootCount}</Text>
-        <Text style={styles.totalScoreText}>Total Score: {totalScore}</Text>
-        {enemyShips.map(
-          (ship, index) =>
-            ship.isAlive && (
-              <Animated.View
-                key={index}
-                style={[styles.enemyShip, ship.position.getLayout()]}
-              >
-                <Image
-                  source={ship.image}
-                  style={styles.enemyShipImage}
-                />
-              </Animated.View>
-            )
+        {/* Game Info - Keep only essential info visible */}
+        <View style={styles.gameInfoContainer}>
+          <Text style={styles.levelText}>Level: {level}</Text>
+          <Text style={styles.shootCountText}>Shots: {shootCount}</Text>
+        </View>
+
+        {/* Menu Toggle Button */}
+        <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
+          <LinearGradient
+            colors={['#4a0080', '#2d004d']}
+            style={styles.menuButtonGradient}
+          >
+            <Text style={styles.menuButtonText}>{isMenuOpen ? '×' : '☰'}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Collapsible Menu */}
+        {isMenuOpen && (
+          <View style={styles.menuContainer}>
+            <TouchableOpacity style={styles.menuItem} onPress={convertScoreToShots}>
+              <Text style={styles.menuItemText}>Convert Score</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.menuItem} onPress={buyShot}>
+              <Text style={styles.menuItemText}>Buy Shot</Text>
+            </TouchableOpacity>
+            
+            <View style={styles.menuItem}>
+              <Text style={styles.menuItemText}>Use Score</Text>
+              <Switch 
+                value={useGameScore} 
+                onValueChange={setUseGameScore}
+                style={styles.switch}
+              />
+            </View>
+
+            <TouchableOpacity style={[styles.menuItem, styles.exitMenuItem]} onPress={exitGame}>
+              <Text style={styles.menuItemText}>Exit Game</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Shoot Button */}
+        <TouchableOpacity style={styles.shootButton} onPress={shoot}>
+          <LinearGradient
+            colors={['#006400', '#004d00']}
+            style={styles.shootButtonGradient}
+          >
+            <Text style={styles.shootButtonText}>Shoot</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Game Elements */}
+        {enemyShips.map((ship, index) =>
+          ship.isAlive && (
+            <Animated.View key={index} style={[styles.enemyShip, ship.position.getLayout()]}>
+              <Image source={ship.image} style={styles.enemyShipImage} />
+            </Animated.View>
+          )
         )}
         {bullets.map((bullet, index) => (
-          <Animated.View
-            key={index}
-            style={[styles.bullet, bullet.getLayout()]}
-          />
+          <Animated.View key={index} style={[styles.bullet, bullet.getLayout()]} />
         ))}
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={[styles.playerShip, playerShipPosition.getLayout()]}
-        >
-          <Image
-            source={playerShip}
-            style={styles.playerShipImage}
-          />
+        <Animated.View {...panResponder.panHandlers} style={[styles.playerShip, playerShipPosition.getLayout()]}>
+          <Image source={playerShip} style={styles.playerShipImage} />
         </Animated.View>
-        <TouchableOpacity style={styles.shootButton} onPress={shoot}>
-          <Text style={styles.shootButtonText}>Shoot</Text>
-        </TouchableOpacity>
-        <View style={styles.buyButtonContainer}>
-          <TouchableOpacity style={styles.buyButton} onPress={buyShot}>
-            <Text style={styles.buyButtonText}>Buy Shot (10 pts)</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.convertButton} onPress={convertScoreToShots}>
-            <Text style={styles.convertButtonText}>Convert Score to Shots</Text>
-          </TouchableOpacity>
-          <View style={styles.toggleContainer}>
-            <Text style={styles.toggleText}>Use Game Score</Text>
-            <Switch
-              value={useGameScore}
-              onValueChange={setUseGameScore}
-            />
-          </View>
-        </View>
-        <TouchableOpacity style={styles.exitButton} onPress={exitGame}>
-          <Text style={styles.exitButtonText}>Exit Game</Text>
-        </TouchableOpacity>
       </ImageBackground>
     </View>
   );
@@ -376,39 +475,135 @@ export default StackShipsBattle;
 
 const styles = StyleSheet.create({
   container: {
-    // paddingTop: 60,
     flex: 1,
-    backgroundColor: '#87CEEB',
-    // paddingHorizontal: 20,
+    
   },
   backgroundImage: {
     flex: 1,
     resizeMode: 'cover',
-    // justifyContent: 'center',
+  },
+  gameInfoContainer: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 1,
+  },
+  levelText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  shootCountText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  totalScoreText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  exitButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    zIndex: 1,
+  },
+  exitButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  menuButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    zIndex: 2,
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  menuButtonGradient: {
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 60,
+  },
+  menuButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: 100,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 10,
+    padding: 10,
+    zIndex: 2,
+    minWidth: 150,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  menuItemText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  exitMenuItem: {
+    borderBottomWidth: 0,
+    marginTop: 5,
+  },
+  shootButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    borderRadius: 35,
+    overflow: 'hidden',
+  },
+  shootButtonGradient: {
+    width: 70,
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  shootButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   enemyShipImage: {
     width: SHIP_SIZE + 50,
     height: SHIP_SIZE + 50,
   },
   playerShip: {
-    width: SHIP_SIZE,
-    height: SHIP_SIZE,
-    backgroundColor: 'blue',
+    width: SHIP_SIZE + 50, // Increased to match image size
+    height: SHIP_SIZE + 50, // Increased to match image size
+    position: 'absolute',
+    bottom: 160, // Adjust this value to move ship up/down
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 60,
   },
   playerShipImage: {
     width: SHIP_SIZE + 50,
     height: SHIP_SIZE + 50,
+    resizeMode: 'contain',
   },
   enemyShip: {
     width: SHIP_SIZE,
     height: SHIP_SIZE,
-    backgroundColor: 'red',
+    // backgroundColor: 'red',
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
@@ -420,100 +615,80 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: BULLET_SIZE / 2,
   },
-  shootButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 5,
+  gameOverContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  shootButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+  gameOverContent: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 15,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#DAA520',
   },
-  scoreText: {
-    // position: 'absolute',
-    // top: 20,
-    // left: 20,
-    fontSize: 18,
+  gameOverTitle: {
+    fontSize: 42,
     fontWeight: 'bold',
-    textAlign: 'center',
-    zIndex: 1000,
+    color: '#DAA520',
+    marginBottom: 30,
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+  },
+  scoreContainer: {
+    width: '100%',
+    marginBottom: 30,
   },
   gameOverText: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 24,
+    color: '#fff',
     textAlign: 'center',
-    marginTop: SCREEN_HEIGHT / 3,
+    marginVertical: 5,
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
-  buyButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    backgroundColor: 'orange',
-    padding: 10,
-    borderRadius: 5,
+  returnButton: {
+    width: '80%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  buyButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  shootCountText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    zIndex: 1000,
-  },
-  totalScoreText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    zIndex: 1000,
-  },
-  buyButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-  },
-  toggleContainer: {
-    flexDirection: 'row',
+  returnButtonGradient: {
+    padding: 15,
     alignItems: 'center',
-    marginTop: 10,
   },
-  toggleText: {
-    color: 'white',
-    marginRight: 10,
-  },
-  exitButton: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    backgroundColor: 'red',
-    padding: 10,
-    borderRadius: 5,
-  },
-  exitButtonText: {
-    color: 'white',
+  returnButtonText: {
+    color: '#fff',
+    fontSize: 18,
     fontWeight: 'bold',
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
-  convertButton: {
-    backgroundColor: 'purple',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+  switch: {
+    transform: [{ scale: 0.8 }],
+    marginLeft: 10,
   },
-  convertButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  levelText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+  gameOverReason: {
+    fontSize: 16,
+    color: '#DAA520',
     textAlign: 'center',
     marginTop: 10,
+    fontStyle: 'italic',
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
 });
